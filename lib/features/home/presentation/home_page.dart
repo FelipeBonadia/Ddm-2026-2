@@ -7,6 +7,9 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
+import '../../game/application/game_session.dart';
+import '../../game/domain/game_engine.dart';
+import '../../progress/presentation/progress_tracker.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -16,6 +19,12 @@ class HomePage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final soundService = ref.read(appSoundServiceProvider);
     final soundEnabled = ref.watch(soundEnabledProvider);
+
+    // Dados reais: o desafio (números sorteados) é o mesmo que o jogo vai
+    // mostrar ao clicar em "Jogar", e as estatísticas vêm do progresso.
+    final game = ref.watch(gameSessionProvider);
+    final progress = ref.watch(progressTrackerProvider);
+    final streakDays = progress.currentStreakAsOf(DateTime.now());
 
     void playNavigation() => soundService.playNavigation(enabled: soundEnabled);
     void playPrimaryAction() =>
@@ -90,23 +99,20 @@ class HomePage extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 7),
+                        // Nível do desafio atual (no lugar do "24" fixo: o
+                        // jogo não tem um alvo, e sim uma igualdade a montar).
                         Text(
-                          '24',
-                          style: Theme.of(context).textTheme.displayMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                height: 1.1,
-                              ),
+                          _difficultyLabel(l10n, game.challenge.difficulty),
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 18),
-                        const Wrap(
+                        Wrap(
                           spacing: 9,
                           runSpacing: 9,
                           children: [
-                            _NumberTile(3),
-                            _NumberTile(4),
-                            _NumberTile(6),
-                            _NumberTile(8),
+                            for (final number in game.challenge.numbers)
+                              _NumberTile(number),
                           ],
                         ),
                       ],
@@ -188,7 +194,7 @@ class HomePage extends ConsumerWidget {
                           icon: Icons.local_fire_department_rounded,
                           tint: AppColors.cyan,
                           label: l10n.homeSequence,
-                          value: l10n.homeStreakValue,
+                          value: l10n.progressStreakDays(streakDays),
                         ),
                       ),
                       SizedBox(
@@ -197,7 +203,7 @@ class HomePage extends ConsumerWidget {
                           icon: Icons.check_circle_outline_rounded,
                           tint: AppColors.violetBright,
                           label: l10n.homeChallenges,
-                          value: '12',
+                          value: '${progress.solvedCount}',
                         ),
                       ),
                       SizedBox(
@@ -205,8 +211,10 @@ class HomePage extends ConsumerWidget {
                         child: _SummaryTile(
                           icon: Icons.auto_awesome_outlined,
                           tint: AppColors.success,
-                          label: l10n.homePrecision,
-                          value: '840 pts',
+                          // Era "Precisão" com "840 pts" fixo; o que existe de
+                          // verdade é a pontuação acumulada.
+                          label: l10n.progressScore,
+                          value: '${progress.score}',
                         ),
                       ),
                     ],
@@ -247,6 +255,15 @@ class HomePage extends ConsumerWidget {
       ),
     );
   }
+
+  /// Um case por nível; `switch` exaustivo (o compilador avisa se o enum mudar).
+  String _difficultyLabel(AppLocalizations l10n, GameDifficulty difficulty) =>
+      switch (difficulty) {
+        GameDifficulty.easy => l10n.gameEasy,
+        GameDifficulty.intermediate => l10n.gameIntermediate,
+        GameDifficulty.advanced => l10n.gameAdvanced,
+        GameDifficulty.hard => l10n.gameHard,
+      };
 }
 
 class _NumberTile extends StatelessWidget {
@@ -298,11 +315,17 @@ class _SummaryTile extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: tint),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13,
+            // Expanded: com zoom alto o rótulo quebra/encurta em vez de
+            // estourar a linha.
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
@@ -330,7 +353,8 @@ class _StepTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 220,
+    // maxWidth em vez de width fixa: em telas/zoom estreitos encolhe.
+    constraints: const BoxConstraints(maxWidth: 220),
     padding: const EdgeInsets.all(15),
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,

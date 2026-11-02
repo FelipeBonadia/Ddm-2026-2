@@ -26,6 +26,11 @@ class GameTokenPlacement {
   final int? numberIndex;
 }
 
+/// O '=' está sempre presente na equação: todo desafio começa com ele no
+/// tabuleiro e ele não pode ser removido, movido nem adicionado de novo.
+const _equalityToken = '=';
+const _equalityPlacement = GameTokenPlacement(token: _equalityToken);
+
 class GameSessionState {
   const GameSessionState({
     required this.challenge,
@@ -38,6 +43,17 @@ class GameSessionState {
     this.attempts = 0,
     this.solved = false,
   });
+
+  /// Estado de um desafio recém-começado: só o '=' no tabuleiro.
+  factory GameSessionState.initial({
+    required GameChallenge challenge,
+    int attempts = 0,
+  }) => GameSessionState(
+    challenge: challenge,
+    attempts: attempts,
+    tokens: const [_equalityToken],
+    placements: const [_equalityPlacement],
+  );
 
   final GameChallenge challenge;
 
@@ -54,6 +70,9 @@ class GameSessionState {
   final bool solved;
 
   String get expression => tokens.join(' ');
+
+  /// true quando há algo no tabuleiro além do '=' fixo.
+  bool get hasContent => tokens.any((token) => token != _equalityToken);
 
   List<String> tokensFor(EquationSide side) =>
       GameSessionController._sideTokens(tokens, side);
@@ -94,7 +113,7 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   @override
   GameSessionState build() =>
-      GameSessionState(challenge: _generate(GameDifficulty.easy));
+      GameSessionState.initial(challenge: _generate(GameDifficulty.easy));
 
   // ── Validação (a UI usa isso para aceitar/recusar drops) ──────────────────
 
@@ -113,7 +132,9 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   bool canAddParenthesis() => !state.solved;
 
-  bool canAddEquality() => !state.solved && !state.tokens.contains('=');
+  /// O '=' já vem posicionado no início do desafio, então nunca se adiciona
+  /// outro (a equação tem exatamente uma igualdade).
+  bool canAddEquality() => false;
 
   // ── Construção da equação ─────────────────────────────────────────────────
   // `insertAt` = posição na lista de tokens (0..length). Fora do intervalo ou
@@ -133,7 +154,7 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   bool addOperation(GameOperation operation, [int? insertAt]) {
     if (!canAddOperation(operation)) return false;
-    _insert(GameTokenPlacement(token: operation.symbol), insertAt);
+    _insert(GameTokenPlacement(token: _tokenFor(operation)), insertAt);
     return true;
   }
 
@@ -143,17 +164,15 @@ class GameSessionController extends Notifier<GameSessionState> {
     return true;
   }
 
-  bool addEquality([int? insertAt]) {
-    if (!canAddEquality()) return false;
-    _insert(const GameTokenPlacement(token: '='), insertAt);
-    return true;
-  }
+  /// Mantido por compatibilidade; sempre recusa (ver [canAddEquality]).
+  bool addEquality([int? insertAt]) => false;
 
   /// Move um token já colocado. [to] é a posição final desejada na lista
-  /// depois da remoção (0..length-1).
+  /// depois da remoção (0..length-1). O '=' é fixo e não pode ser movido.
   bool moveToken(int from, int to) {
     final length = state.placements.length;
     if (state.solved || from < 0 || from >= length) return false;
+    if (state.placements[from].token == _equalityToken) return false;
     final target = to.clamp(0, length - 1);
     if (target == from) return false;
     final placements = [...state.placements];
@@ -165,6 +184,8 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   void removeAt(int index) {
     if (state.solved || index < 0 || index >= state.placements.length) return;
+    // O '=' é fixo.
+    if (state.placements[index].token == _equalityToken) return;
     final placements = [...state.placements];
     final removed = placements.removeAt(index);
 
@@ -181,14 +202,18 @@ class GameSessionController extends Notifier<GameSessionState> {
     _commit(placements, used, order);
   }
 
+  /// Desfaz o último token que não seja o '=' (que é fixo).
   void removeLast() {
-    if (state.solved || state.tokens.isEmpty) return;
-    removeAt(state.tokens.length - 1);
+    if (state.solved) return;
+    final index = state.tokens.lastIndexWhere((t) => t != _equalityToken);
+    if (index < 0) return;
+    removeAt(index);
   }
 
+  /// Limpa tudo, exceto o '=' fixo.
   void clearExpression() {
     if (state.solved) return;
-    _commit(const [], const {}, const []);
+    _commit(const [_equalityPlacement], const {}, const []);
   }
 
   // ── Wrappers de compatibilidade ───────────────────────────────────────────
@@ -238,14 +263,14 @@ class GameSessionController extends Notifier<GameSessionState> {
   }
 
   void setDifficulty(GameDifficulty difficulty) {
-    state = GameSessionState(
+    state = GameSessionState.initial(
       challenge: _generate(difficulty),
       attempts: state.attempts,
     );
   }
 
   void skipChallenge() {
-    state = GameSessionState(
+    state = GameSessionState.initial(
       challenge: _generate(state.challenge.difficulty),
       attempts: state.attempts,
     );
@@ -253,22 +278,46 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   void nextChallenge() {
     if (!state.solved) return;
-    state = GameSessionState(
+    state = GameSessionState.initial(
       challenge: _generate(state.challenge.difficulty),
       attempts: state.attempts,
     );
   }
 
+  /// Gera um desafio inédito. Com números de 1 a 9 há um conjunto finito de
+  /// desafios por nível; quando todos já foram vistos, o gerador lança
+  /// StateError. Nesse caso, esquece os já vistos DESSE nível e recomeça o
+  /// ciclo, em vez de travar o jogo.
   GameChallenge _generate(GameDifficulty difficulty) {
-    final challenge = _generator.generate(
-      difficulty: difficulty,
-      excludedChallengeKeys: _seenChallengeKeys,
-    );
+    GameChallenge challenge;
+    try {
+      challenge = _generator.generate(
+        difficulty: difficulty,
+        excludedChallengeKeys: _seenChallengeKeys,
+      );
+    } on StateError {
+      _seenChallengeKeys.removeWhere(
+        (key) => key.startsWith('${difficulty.name}:'),
+      );
+      challenge = _generator.generate(
+        difficulty: difficulty,
+        excludedChallengeKeys: _seenChallengeKeys,
+      );
+    }
     _seenChallengeKeys.add(challenge.key);
     return challenge;
   }
 
   // ── Internos ──────────────────────────────────────────────────────────────
+
+  /// Texto do token de cada operação, no formato que o avaliador entende:
+  /// binárias usam o símbolo infixo, funções (√ ∛ | ⌊ ⌈) usam o marcador
+  /// prefixo e o fatorial usa '!'. (`symbol` lança erro fora das binárias.)
+  static String _tokenFor(GameOperation operation) {
+    if (operation.isBinaryInfix) return operation.symbol;
+    if (operation.isPrefixFunction) return operation.prefixMarker;
+    return '!'; // fatorial (pós-fixo)
+  }
 
   /// Insere um placement mantendo tokens/placements/usados em sincronia.
   /// (Antes o placement era sempre adicionado no FIM mesmo quando o token era
@@ -307,7 +356,7 @@ class GameSessionController extends Notifier<GameSessionState> {
   }
 
   static List<String> _sideTokens(List<String> tokens, EquationSide side) {
-    final separator = tokens.indexOf('=');
+    final separator = tokens.indexOf(_equalityToken);
     if (side == EquationSide.left) {
       return separator < 0 ? tokens : tokens.take(separator).toList();
     }

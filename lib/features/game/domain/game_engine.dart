@@ -67,8 +67,8 @@ extension GameOperationSymbol on GameOperation {
     _ => throw UnsupportedError('$this não é um operador infixo binário.'),
   };
 
-  /// Marcador de função prefixa — só os unários que envolvem um grupo
-  /// entre parênteses: √(...), ∛(...), |(...), ⌊(...), ⌈(...).
+  /// Marcador de função prefixa — √, ∛, |, ⌊, ⌈. Recebem um grupo entre
+  /// parênteses, √(8 + 1), ou um único operando, √7.
   /// Não há marcador de fechamento: o grupo termina no ')'.
   String get prefixMarker => switch (this) {
     GameOperation.sqrt => '√',
@@ -477,17 +477,21 @@ class ExpressionEvaluator {
 /// decide o que mostrar (normalmente nada, ou o texto de rascunho).
 ///
 /// Suporta preview parcial: se ainda não houver '=', renderiza só o lado
-/// esquerdo já montado.
-String? expressionToLatex(String expression) {
+/// esquerdo já montado. Com [partial] = true, a fórmula ainda em construção
+/// também é renderizada: operandos que faltam viram um quadrado (□),
+/// parênteses abertos são fechados automaticamente e lados vazios aparecem
+/// como □. Assim o jogador vê a fórmula em LaTeX durante toda a montagem.
+String? expressionToLatex(String expression, {bool partial = false}) {
   final parts = expression.split('=');
   if (parts.isEmpty || parts.length > 2) return null;
 
   final evaluator = ExpressionEvaluator();
   String? renderSide(String raw) {
     final tokenized = evaluator._tokenize(raw);
-    if (tokenized.error != null || tokenized.tokens.isEmpty) return null;
+    if (tokenized.error != null) return null;
+    if (tokenized.tokens.isEmpty) return partial ? '\\square' : null;
     try {
-      return _LatexBuilder(tokenized.tokens).build();
+      return _LatexBuilder(tokenized.tokens, partial: partial).build();
     } on _EvaluationFailure {
       return null;
     }
@@ -507,14 +511,29 @@ String? expressionToLatex(String expression) {
 /// classes têm estrutura quase idêntica — é proposital: garante que o
 /// preview sempre reflete exatamente como a expressão seria avaliada.
 class _LatexBuilder {
-  _LatexBuilder(this.tokens);
+  _LatexBuilder(this.tokens, {this.partial = false});
   final List<_Token> tokens;
+
+  /// Modo tolerante, para pré-visualizar fórmulas incompletas.
+  final bool partial;
   int _position = 0;
 
   String build() {
-    final result = _buildExpression();
-    if (_position != tokens.length) {
-      throw const _EvaluationFailure(GameExpressionError.invalidSyntax);
+    var result = _buildExpression();
+    if (!partial) {
+      if (_position != tokens.length) {
+        throw const _EvaluationFailure(GameExpressionError.invalidSyntax);
+      }
+      return result;
+    }
+    // Sobras (')' perdido, dois números seguidos...): ignora o ')' e mostra
+    // o resto ao lado, em vez de desistir de renderizar.
+    while (_position < tokens.length) {
+      if (tokens[_position].kind == _TokenKind.rightParenthesis) {
+        _position++;
+        continue;
+      }
+      result = '$result \\; ${_buildExpression()}';
     }
     return result;
   }
@@ -573,8 +592,30 @@ class _LatexBuilder {
     return value;
   }
 
+  /// Lê o conteúdo de um grupo "( ... )". No modo parcial aceita grupo sem
+  /// '(' (vira □) e sem ')' (fecha sozinho).
+  String _buildGroup() {
+    if (_matchesKind(_TokenKind.leftParenthesis)) {
+      _position++;
+      final inner = _buildExpression();
+      if (_matchesKind(_TokenKind.rightParenthesis)) {
+        _position++;
+      } else if (!partial) {
+        throw const _EvaluationFailure(
+          GameExpressionError.unbalancedParentheses,
+        );
+      }
+      return inner;
+    }
+    // Forma curta, sem parênteses: √7, ∛27, |3, √√16
+    if (_startsOperand(tokens, _position)) return _buildPrimary();
+    if (partial) return '\\square';
+    throw const _EvaluationFailure(GameExpressionError.invalidSyntax);
+  }
+
   String _buildPrimary() {
     if (_position >= tokens.length) {
+      if (partial) return '\\square';
       throw const _EvaluationFailure(GameExpressionError.incomplete);
     }
     final token = tokens[_position];
@@ -583,17 +624,7 @@ class _LatexBuilder {
         token.operation!.isPrefixFunction) {
       final function = token.operation!;
       _position++;
-      if (!_matchesKind(_TokenKind.leftParenthesis)) {
-        throw const _EvaluationFailure(GameExpressionError.invalidSyntax);
-      }
-      _position++;
-      final inner = _buildExpression();
-      if (!_matchesKind(_TokenKind.rightParenthesis)) {
-        throw const _EvaluationFailure(
-          GameExpressionError.unbalancedParentheses,
-        );
-      }
-      _position++;
+      final inner = _buildGroup();
       return switch (function) {
         GameOperation.sqrt => '\\sqrt{$inner}',
         GameOperation.cbrt => '\\sqrt[3]{$inner}',
@@ -610,17 +641,13 @@ class _LatexBuilder {
     }
 
     if (token.kind == _TokenKind.leftParenthesis) {
-      _position++;
-      final inner = _buildExpression();
-      if (!_matchesKind(_TokenKind.rightParenthesis)) {
-        throw const _EvaluationFailure(
-          GameExpressionError.unbalancedParentheses,
-        );
-      }
-      _position++;
+      final inner = _buildGroup();
       return '\\left($inner\\right)';
     }
 
+    // Operador ou ')' onde era esperado um operando: no modo parcial vira □
+    // sem consumir o token (quem chamou o consome).
+    if (partial) return '\\square';
     throw const _EvaluationFailure(GameExpressionError.incomplete);
   }
 
@@ -895,6 +922,15 @@ class ChallengeGenerator {
   }
 }
 
+/// true se na posição [position] começa um operando "simples" que uma função
+/// prefixa pode receber sem parênteses: um número ou outra função prefixa.
+bool _startsOperand(List<_Token> tokens, int position) {
+  if (position >= tokens.length) return false;
+  final token = tokens[position];
+  return token.kind == _TokenKind.number ||
+      (token.kind == _TokenKind.operation && token.operation!.isPrefixFunction);
+}
+
 class _Tokenization {
   const _Tokenization.success(this.tokens, this.numbers, this.operations)
     : error = null;
@@ -1034,17 +1070,27 @@ class _ExpressionParser {
         token.operation!.isPrefixFunction) {
       final function = token.operation!;
       _position++;
-      if (!_matchesKind(_TokenKind.leftParenthesis)) {
-        throw const _EvaluationFailure(GameExpressionError.invalidSyntax);
-      }
-      _position++; // consome '('
-      final inner = _parseExpression();
-      if (!_matchesKind(_TokenKind.rightParenthesis)) {
-        throw const _EvaluationFailure(
-          GameExpressionError.unbalancedParentheses,
+      final Rational inner;
+      if (_matchesKind(_TokenKind.leftParenthesis)) {
+        // Forma com grupo: √(8 + 1)
+        _position++; // consome '('
+        inner = _parseExpression();
+        if (!_matchesKind(_TokenKind.rightParenthesis)) {
+          throw const _EvaluationFailure(
+            GameExpressionError.unbalancedParentheses,
+          );
+        }
+        _position++; // consome ')'
+      } else if (_startsOperand(tokens, _position)) {
+        // Forma curta, com um único operando: √7, ∛27, |3, √√16
+        inner = _parsePrimary();
+      } else {
+        throw _EvaluationFailure(
+          _position >= tokens.length
+              ? GameExpressionError.incomplete
+              : GameExpressionError.invalidSyntax,
         );
       }
-      _position++; // consome ')'
       final Rational? result = switch (function) {
         GameOperation.sqrt => inner.exactSquareRoot,
         GameOperation.cbrt => inner.exactCubeRoot,

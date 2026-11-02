@@ -7,6 +7,15 @@ final progressTrackerProvider =
       ProgressTrackerController.new,
     );
 
+/// Diferença em dias de calendário. Converte para UTC antes de subtrair:
+/// com horário de verão, `difference` entre duas meias-noites locais pode
+/// dar 23h ou 25h, e `inDays` arredondaria errado (23h → 0 dias).
+int _calendarDaysBetween(DateTime from, DateTime to) => DateTime.utc(
+  to.year,
+  to.month,
+  to.day,
+).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
+
 /// Um desafio resolvido corretamente. Cada campo vem direto do estado real
 /// do jogo no instante em que a resposta foi aceita — nada aqui é fixo ou
 /// inventado.
@@ -41,6 +50,16 @@ class ProgressState {
   final DateTime? lastSolvedDay;
 
   int get solvedCount => entries.length;
+
+  /// Sequência vigente em [now]. `currentStreakDays` só é atualizado quando o
+  /// jogador acerta; se ele ficou mais de um dia sem jogar, a sequência já
+  /// acabou, mesmo que o número guardado ainda seja positivo.
+  int currentStreakAsOf(DateTime now) {
+    final last = lastSolvedDay;
+    if (last == null) return 0;
+    final today = DateTime(now.year, now.month, now.day);
+    return _calendarDaysBetween(last, today) <= 1 ? currentStreakDays : 0;
+  }
 
   /// Pontuação derivada das dificuldades resolvidas de verdade. A regra
   /// (fácil=10, intermediário=20, avançado=30, difícil=40) é um ponto de
@@ -132,13 +151,4 @@ class ProgressTrackerController extends Notifier<ProgressState> {
         : state.bestStreakDays;
     return (current: current, best: best);
   }
-
-  /// Diferença em dias de calendário. Converte para UTC antes de subtrair:
-  /// com horário de verão, `difference` entre duas meias-noites locais pode
-  /// dar 23h ou 25h, e `inDays` arredondaria errado (23h → 0 dias).
-  static int _calendarDaysBetween(DateTime from, DateTime to) => DateTime.utc(
-    to.year,
-    to.month,
-    to.day,
-  ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
 }

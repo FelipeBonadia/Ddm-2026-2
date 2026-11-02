@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
@@ -36,6 +37,15 @@ class _GamePageState extends ConsumerState<GamePage> {
     final soundEnabled = ref.watch(soundEnabledProvider);
     final colorScheme = Theme.of(context).colorScheme;
     final feedback = _feedbackText(l10n, game);
+
+    // O '=' é sempre presente (o jogo começa com ele no tabuleiro), então só
+    // há o que pré-visualizar quando existe algo além dele. Os tokens são
+    // unidos com espaço para dois números vizinhos não virarem um só ("2 3").
+    final hasContent = game.tokens.any((t) => t != '=');
+    final draftText = game.tokens.join(' ');
+    // Modo parcial: a fórmula é renderizada em LaTeX durante toda a montagem
+    // (partes que faltam aparecem como □), não só quando está completa.
+    final latex = expressionToLatex(draftText, partial: true);
 
     void playSelection() => soundService.playSelection(enabled: soundEnabled);
 
@@ -75,6 +85,8 @@ class _GamePageState extends ConsumerState<GamePage> {
     }
 
     void removeTokenAt(int index) {
+      // O '=' é fixo: não pode ser removido.
+      if (game.tokens[index] == '=') return;
       controller.removeAt(index);
       playSelection();
     }
@@ -91,7 +103,10 @@ class _GamePageState extends ConsumerState<GamePage> {
               final totalW = constraints.maxWidth;
 
               // ── Tamanhos: só dois tokens, nada de porcentagem por seção ───
-              final compact = totalH < 600;
+              final compact = totalH < 600 || totalW < 360;
+              // Com zoom do navegador ou telas baixas a área útil encolhe:
+              // abaixo disso a página inteira rola em vez de estourar o layout.
+              final scrollable = totalH < 820;
               final metrics = _TileMetrics(
                 height: compact ? 38 : 46,
                 minWidth: compact ? 38 : 46,
@@ -120,37 +135,55 @@ class _GamePageState extends ConsumerState<GamePage> {
                 );
               }
 
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: gap),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 1. Header ───────────────────────────────────────────────
-                    SizedBox(
-                      height: 44,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            tooltip: l10n.gameBack,
-                            iconSize: 22,
-                            onPressed: () {
-                              soundService.playBack(enabled: soundEnabled);
-                              ref
-                                  .read(selectedSectionProvider.notifier)
-                                  .select(AppSection.home);
-                              context.go(AppRoutes.home);
-                            },
-                            icon: const Icon(Icons.arrow_back_rounded),
+              final boardParts = <Widget>[
+                _EquationBoard(
+                  key: const ValueKey('game-equation-board'),
+                  tokens: game.tokens,
+                  metrics: metrics,
+                  dragging: _isDragging,
+                  canAccept: canAccept,
+                  onDropPiece: addPiece,
+                  onTokenTapped: removeTokenAt,
+                ),
+                SizedBox(height: gap),
+                _LatexPreview(
+                  key: const ValueKey('game-latex-preview'),
+                  latex: latex,
+                  draft: draftText,
+                ),
+              ];
+
+              final body = Column(
+                mainAxisSize: scrollable ? MainAxisSize.min : MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Header ───────────────────────────────────────────────
+                  SizedBox(
+                    height: 44,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          tooltip: l10n.gameBack,
+                          iconSize: 22,
+                          onPressed: () {
+                            soundService.playBack(enabled: soundEnabled);
+                            ref
+                                .read(selectedSectionProvider.notifier)
+                                .select(AppSection.home);
+                            context.go(AppRoutes.home);
+                          },
+                          icon: const Icon(Icons.arrow_back_rounded),
+                        ),
+                        Expanded(
+                          child: Text(
+                            l10n.gameTitle,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
-                          Expanded(
-                            child: Text(
-                              l10n.gameTitle,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                          _DifficultyPicker(
+                        ),
+                        Flexible(
+                          child: _DifficultyPicker(
                             value: game.challenge.difficulty,
                             enabled: !game.solved,
                             onChanged: (difficulty) {
@@ -158,182 +191,195 @@ class _GamePageState extends ConsumerState<GamePage> {
                               controller.setDifficulty(difficulty);
                             },
                           ),
-                          SizedBox(width: gap / 2),
-                          _AttemptsBadge(attempts: game.attempts),
-                          IconButton(
-                            tooltip: l10n.gameSkip,
-                            iconSize: 22,
-                            onPressed: game.solved
-                                ? null
-                                : () {
-                                    controller.skipChallenge();
-                                    soundService.playNavigation(
-                                      enabled: soundEnabled,
-                                    );
-                                  },
-                            icon: const Icon(Icons.skip_next_rounded),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // 2. Tagline ──────────────────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: gap / 2),
-                      child: Text(
-                        l10n.gameRuleHint,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
                         ),
-                      ),
-                    ),
-
-                    // 3. Tabuleiro: ocupa o espaço que sobrar, centralizado ───
-                    Expanded(
-                      child: _EquationBoard(
-                        key: const ValueKey('game-equation-board'),
-                        tokens: game.tokens,
-                        metrics: metrics,
-                        dragging: _isDragging,
-                        canAccept: canAccept,
-                        onDropPiece: addPiece,
-                        onTokenTapped: removeTokenAt,
-                      ),
-                    ),
-
-                    // 4. Feedback: espaço sempre reservado (sem "pulo") ───────
-                    SizedBox(
-                      height: 40,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: gap / 3),
-                        child: feedback == null
-                            ? const SizedBox.shrink()
-                            : _FeedbackMessage(
-                                text: feedback,
-                                success: game.evaluation?.isCorrect == true,
-                              ),
-                      ),
-                    ),
-
-                    // 5. Números ──────────────────────────────────────────────
-                    _SectionLabel(l10n.gameNumbers),
-                    SizedBox(height: gap / 2),
-                    Wrap(
-                      spacing: gap,
-                      runSpacing: gap,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        for (var i = 0; i < game.challenge.numbers.length; i++)
-                          paletteTile(
-                            tileKey: ValueKey('game-number-$i'),
-                            piece: _GamePiece.number(
-                              i,
-                              '${game.challenge.numbers[i]}',
-                            ),
-                            style: _TileStyle.number,
-                            isUsed: game.usedNumberIndexes.contains(i),
-                          ),
+                        SizedBox(width: gap / 2),
+                        _AttemptsBadge(attempts: game.attempts),
+                        IconButton(
+                          tooltip: l10n.gameSkip,
+                          iconSize: 22,
+                          onPressed: game.solved
+                              ? null
+                              : () {
+                                  controller.skipChallenge();
+                                  soundService.playNavigation(
+                                    enabled: soundEnabled,
+                                  );
+                                },
+                          icon: const Icon(Icons.skip_next_rounded),
+                        ),
                       ],
                     ),
+                  ),
 
-                    SizedBox(height: gap * 1.2),
+                  // 2. Tagline ──────────────────────────────────────────────
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: gap / 2),
+                    child: Text(
+                      l10n.gameRuleHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
 
-                    // 6. Operações ────────────────────────────────────────────
-                    // Só aparecem as operações permitidas no nível atual.
-                    _SectionLabel(l10n.gameOperations),
-                    SizedBox(height: gap / 2),
-                    Wrap(
-                      spacing: gap,
-                      runSpacing: gap,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        for (final op in GameOperation.values)
-                          if (game.challenge.allowedOperations.contains(op))
-                            paletteTile(
-                              tileKey: ValueKey('game-operation-${op.name}'),
-                              piece: _GamePiece.operation(op, _opLabel(op)),
-                              style: _TileStyle.operation,
+                  // 3. Tabuleiro + LaTeX logo abaixo, juntos e centralizados ─
+                  // ListView(shrinkWrap) mantém o preview colado no tabuleiro
+                  // e ainda rola se a tela for muito baixa.
+                  if (scrollable)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: gap),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: boardParts,
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: Center(
+                        child: ListView(shrinkWrap: true, children: boardParts),
+                      ),
+                    ),
+
+                  // 4. Feedback: espaço sempre reservado (sem "pulo") ───────
+                  SizedBox(
+                    height: 40,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: gap / 3),
+                      child: feedback == null
+                          ? const SizedBox.shrink()
+                          : _FeedbackMessage(
+                              text: feedback,
+                              success: game.evaluation?.isCorrect == true,
                             ),
+                    ),
+                  ),
+
+                  // 5. Números ──────────────────────────────────────────────
+                  _SectionLabel(l10n.gameNumbers),
+                  SizedBox(height: gap / 2),
+                  Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      for (var i = 0; i < game.challenge.numbers.length; i++)
                         paletteTile(
-                          tileKey: const ValueKey('game-open-parenthesis'),
-                          piece: const _GamePiece.leftParenthesis(),
-                          style: _TileStyle.parenthesis,
+                          tileKey: ValueKey('game-number-$i'),
+                          piece: _GamePiece.number(
+                            i,
+                            '${game.challenge.numbers[i]}',
+                          ),
+                          style: _TileStyle.number,
+                          isUsed: game.usedNumberIndexes.contains(i),
                         ),
-                        paletteTile(
-                          tileKey: const ValueKey('game-close-parenthesis'),
-                          piece: const _GamePiece.rightParenthesis(),
-                          style: _TileStyle.parenthesis,
-                        ),
+                    ],
+                  ),
+
+                  SizedBox(height: gap * 1.2),
+
+                  // 6. Operações ────────────────────────────────────────────
+                  // Só aparecem as operações permitidas no nível atual.
+                  _SectionLabel(l10n.gameOperations),
+                  SizedBox(height: gap / 2),
+                  Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      for (final op in GameOperation.values)
+                        if (game.challenge.allowedOperations.contains(op))
+                          paletteTile(
+                            tileKey: ValueKey('game-operation-${op.name}'),
+                            piece: _GamePiece.operation(op, _opLabel(op)),
+                            style: _TileStyle.operation,
+                          ),
+                      paletteTile(
+                        tileKey: const ValueKey('game-open-parenthesis'),
+                        piece: const _GamePiece.leftParenthesis(),
+                        style: _TileStyle.parenthesis,
+                      ),
+                      paletteTile(
+                        tileKey: const ValueKey('game-close-parenthesis'),
+                        piece: const _GamePiece.rightParenthesis(),
+                        style: _TileStyle.parenthesis,
+                      ),
+                      // O '=' já vem posicionado no tabuleiro; a peça só
+                      // aparece na paleta se ele não estiver lá.
+                      if (!game.tokens.contains('='))
                         paletteTile(
                           tileKey: const ValueKey('game-equality'),
                           piece: const _GamePiece.equality(),
                           style: _TileStyle.equality,
-                          isUsed: game.tokens.contains('='),
                         ),
-                      ],
-                    ),
+                    ],
+                  ),
 
-                    SizedBox(height: gap * 1.2),
+                  SizedBox(height: gap * 1.2),
 
-                    // 7. Barra de ações ───────────────────────────────────────
-                    Row(
-                      children: [
-                        _ActionBtn(
-                          icon: Icons.undo_rounded,
-                          label: l10n.gameUndo,
-                          enabled: !game.solved && game.tokens.isNotEmpty,
-                          onPressed: () {
-                            controller.removeLast();
-                            playSelection();
-                          },
-                        ),
-                        SizedBox(width: gap),
-                        _ActionBtn(
-                          icon: Icons.delete_sweep_outlined,
-                          label: l10n.gameClear,
-                          enabled: !game.solved && game.tokens.isNotEmpty,
-                          onPressed: () {
-                            controller.clearExpression();
-                            soundService.playControl(enabled: soundEnabled);
-                          },
-                        ),
-                        const Spacer(),
-                        _ActionBtn(
-                          icon: game.solved
-                              ? Icons.arrow_forward_rounded
-                              : Icons.check_circle_outline_rounded,
-                          label: game.solved
-                              ? l10n.gameContinue
-                              : l10n.gameVerify,
-                          enabled: true,
-                          filled: true,
-                          onPressed: game.solved
-                              ? () {
-                                  controller.nextChallenge();
-                                  soundService.playPrimaryAction(
+                  // 7. Barra de ações ───────────────────────────────────────
+                  Row(
+                    children: [
+                      _ActionBtn(
+                        icon: Icons.undo_rounded,
+                        label: l10n.gameUndo,
+                        enabled: !game.solved && hasContent,
+                        onPressed: () {
+                          controller.removeLast();
+                          playSelection();
+                        },
+                      ),
+                      SizedBox(width: gap),
+                      _ActionBtn(
+                        icon: Icons.delete_sweep_outlined,
+                        label: l10n.gameClear,
+                        enabled: !game.solved && hasContent,
+                        onPressed: () {
+                          controller.clearExpression();
+                          soundService.playControl(enabled: soundEnabled);
+                        },
+                      ),
+                      const Spacer(),
+                      _ActionBtn(
+                        icon: game.solved
+                            ? Icons.arrow_forward_rounded
+                            : Icons.check_circle_outline_rounded,
+                        label: game.solved
+                            ? l10n.gameContinue
+                            : l10n.gameVerify,
+                        enabled: true,
+                        filled: true,
+                        onPressed: game.solved
+                            ? () {
+                                controller.nextChallenge();
+                                soundService.playPrimaryAction(
+                                  enabled: soundEnabled,
+                                );
+                              }
+                            : () {
+                                final result = controller.checkAnswer();
+                                if (result?.isCorrect == true) {
+                                  soundService.playSuccess(
+                                    enabled: soundEnabled,
+                                  );
+                                } else {
+                                  soundService.playWarning(
                                     enabled: soundEnabled,
                                   );
                                 }
-                              : () {
-                                  final result = controller.checkAnswer();
-                                  if (result?.isCorrect == true) {
-                                    soundService.playSuccess(
-                                      enabled: soundEnabled,
-                                    );
-                                  } else {
-                                    soundService.playWarning(
-                                      enabled: soundEnabled,
-                                    );
-                                  }
-                                },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                              },
+                      ),
+                    ],
+                  ),
+                ],
+              );
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: gap),
+                child: scrollable ? SingleChildScrollView(child: body) : body,
               );
             },
           ),
@@ -405,35 +451,44 @@ class _DifficultyPicker extends StatelessWidget {
       GameDifficulty.hard => l10n.gameHard,
     };
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: DropdownButton<GameDifficulty>(
-        value: value,
-        isDense: true,
-        underline: const SizedBox.shrink(),
-        style: TextStyle(
-          color: scheme.onSurface,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 140),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
-        // Um item por nível, na ordem do enum (do mais fácil ao mais difícil).
-        items: [
-          for (final difficulty in GameDifficulty.values)
-            DropdownMenuItem(
-              value: difficulty,
-              child: Text(labelFor(difficulty)),
-            ),
-        ],
-        onChanged: enabled
-            ? (d) {
-                if (d != null) onChanged(d);
-              }
-            : null,
+        child: DropdownButton<GameDifficulty>(
+          value: value,
+          isDense: true,
+          isExpanded: true,
+          underline: const SizedBox.shrink(),
+          style: TextStyle(
+            color: scheme.onSurface,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+          // Um item por nível, na ordem do enum (do mais fácil ao mais difícil).
+          items: [
+            for (final difficulty in GameDifficulty.values)
+              DropdownMenuItem(
+                value: difficulty,
+                child: Text(
+                  labelFor(difficulty),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: enabled
+              ? (d) {
+                  if (d != null) onChanged(d);
+                }
+              : null,
+        ),
       ),
     );
   }
@@ -889,7 +944,7 @@ class _EquationBoardState extends State<_EquationBoard> {
 
         return Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 96, maxHeight: 160),
+            constraints: const BoxConstraints(minHeight: 96),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               width: double.infinity,
@@ -945,7 +1000,9 @@ class _EquationBoardState extends State<_EquationBoard> {
                                 key: _keys[i],
                                 token: tokens[i],
                                 metrics: widget.metrics,
-                                onTap: () => widget.onTokenTapped(i),
+                                onTap: tokens[i] == '='
+                                    ? null
+                                    : () => widget.onTokenTapped(i),
                               ),
                             ],
                             if (showMarker && _insertIndex == tokens.length)
@@ -969,12 +1026,12 @@ class _BoardTile extends StatelessWidget {
     super.key,
     required this.token,
     required this.metrics,
-    required this.onTap,
+    this.onTap,
   });
 
   final String token;
   final _TileMetrics metrics;
-  final VoidCallback onTap;
+  final VoidCallback? onTap; // null = peça fixa (o '=')
 
   @override
   Widget build(BuildContext context) {
@@ -999,19 +1056,81 @@ class _BoardTile extends StatelessWidget {
       _ => token,
     };
 
+    final face = _TileFace(
+      label: label,
+      style: style,
+      metrics: _TileMetrics(
+        height: metrics.height - 6,
+        minWidth: metrics.minWidth - 6,
+        fontSize: metrics.fontSize - 1,
+        hPad: metrics.hPad - 2,
+      ),
+      onTap: onTap,
+    );
+    if (onTap == null) return face;
     return Tooltip(
       message: AppLocalizations.of(context)!.gameRemoveTokenHint,
-      child: _TileFace(
-        label: label,
-        style: style,
-        metrics: _TileMetrics(
-          height: metrics.height - 6,
-          minWidth: metrics.minWidth - 6,
-          fontSize: metrics.fontSize - 1,
-          hPad: metrics.hPad - 2,
+      child: face,
+    );
+  }
+}
+
+// ─── Pré-visualização LaTeX ──────────────────────────────────────────────────
+
+/// Renderiza a fórmula montada em LaTeX, logo abaixo do tabuleiro.
+/// - [latex] != null → fórmula completa e renderizável.
+/// - [latex] == null e [draft] != null → ainda incompleta (ex.: "3 + ="):
+///   mostra o rascunho em texto simples, esmaecido, em vez de sumir.
+/// A altura mínima é fixa para o layout não "pular" ao montar a fórmula.
+class _LatexPreview extends StatelessWidget {
+  const _LatexPreview({super.key, required this.latex, required this.draft});
+
+  final String? latex;
+  final String? draft;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    // FittedBox(scaleDown): fórmulas longas ou com zoom alto encolhem para
+    // caber inteiras na largura, em vez de cortar ou exigir rolagem lateral.
+    Widget content;
+    if (latex != null) {
+      content = FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Math.tex(
+          latex!,
+          textStyle: TextStyle(fontSize: 28, color: scheme.onSurface),
+          onErrorFallback: (_) => Text(
+            latex!,
+            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 16),
+          ),
         ),
-        onTap: onTap,
+      );
+    } else if (draft != null) {
+      content = Text(
+        draft!,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+          fontSize: 16,
+        ),
+      );
+    } else {
+      content = const SizedBox.shrink();
+    }
+
+    return Container(
+      key: const ValueKey('game-latex-box'),
+      constraints: const BoxConstraints(minHeight: 64),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
+      child: Semantics(label: latex ?? draft ?? '', child: content),
     );
   }
 }

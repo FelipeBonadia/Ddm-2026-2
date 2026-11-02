@@ -41,10 +41,12 @@ class ProgressPage extends ConsumerWidget {
                 value: l10n.progressStreakDays(progress.bestStreakDays),
                 icon: Icons.local_fire_department_rounded,
               ),
-              if (progress.currentStreakDays > 0)
+              if (progress.currentStreakAsOf(DateTime.now()) > 0)
                 _StatTile(
                   label: l10n.progressCurrentStreak,
-                  value: l10n.progressStreakDays(progress.currentStreakDays),
+                  value: l10n.progressStreakDays(
+                    progress.currentStreakAsOf(DateTime.now()),
+                  ),
                   icon: Icons.whatshot_rounded,
                 ),
             ],
