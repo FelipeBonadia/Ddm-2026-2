@@ -1,0 +1,167 @@
+
+{
+  "@@locale": "pt",
+  "appName": "Desafio Matemático",
+  "appLabel": "Desafio Matemático",
+  "loginTitle": "Sua próxima ideia começa aqui.",
+  "loginSubtitle": "Entre para explorar desafios matemáticos.",
+  "loginGoogle": "Continuar com Google",
+  "loginEmail": "Continuar com e-mail",
+  "loginUnavailable": "Esta opção estará disponível em breve.",
+  "loginLanguage": "IDIOMA",
+  "loginBack": "Voltar ao início",
+  "loginTeamTitle": "INTEGRANTES DA EQUIPE",
+  "loginTeamNames": "Integrante 1 · Integrante 2",
+  "loginBrandTag": "NÚMEROS. IDEIAS. DESCOBERTAS.",
+  "loginBrandHeading": "Uma nova maneira\nde pensar com números.",
+  "homeGreeting": "Olá, jogador",
+  "homeSubtitle": "Pronto para um novo desafio?",
+  "homeAccessAccount": "Acessar conta",
+  "homeChallengeTitle": "ALCANCE O RESULTADO",
+  "homePlayNow": "Jogar agora",
+  "homeContinue": "Continuar jogando",
+  "homeYourSpace": "Seu espaço",
+  "homeStatsLabel": "DADOS DE DEMONSTRAÇÃO",
+  "homeStepTitle": "Uma ideia em três etapas",
+  "homeStepOne": "Receba quatro números",
+  "homeStepTwo": "Combine operações",
+  "homeStepThree": "Alcance o resultado",
+  "homeSequence": "Sequência",
+  "homeStreakValue": "3 dias",
+  "homeChallenges": "Desafios",
+  "homePrecision": "Precisão",
+  "gameBack": "Voltar ao início",
+  "gameTitle": "Desafio",
+  "gameTimer": "--:--",
+  "gameChallengeDay": "DESAFIO DO DIA",
+  "gameLevel": "DIFICULDADE",
+  "gameEasy": "FÁCIL",  
+  "gameIntermediate": "INTERMEDIÁRIO",
+  "gameAdvanced": "AVANÇADO",
+  "gameHard": "DIFÍCIL",
+  "gameResultTarget": "IGUALE OS DOIS LADOS",
+  "gameRuleHint": "Use cada um dos quatro números uma única vez para formar uma igualdade válida.",
+  "gameLeftSide": "LADO ESQUERDO",
+  "gameRightSide": "LADO DIREITO",
+  "gameNumbers": "NÚMEROS",
+  "gameOperations": "OPERADORES",
+  "gameExpressionLabel": "SUA EXPRESSÃO",
+  "gameExpressionPlaceholder": "Monte sua expressão",
+  "gameBoardEmptyHint": "Arraste ou toque para adicionar à equação",
+  "gameRemoveTokenHint": "Toque para remover",
+  "gameUndo": "Desfazer",
+  "gameEquality": "=",
+  "gameContinue": "Próximo desafio",
+  "gameFeedbackCorrect": "Igualdade correta!",
+  "gameFeedbackIncorrect": "Os dois lados não são iguais. Tente novamente.",
+  "gameFeedbackIncomplete": "Complete os dois lados e use os quatro números.",
+  "gameFeedbackMissingEquality": "Insira o sinal de igual (=) para formar a igualdade.",
+  "gameFeedbackWrongNumbers": "Use cada número disponível exatamente uma vez.",
+  "gameFeedbackOperationNotAllowed": "Essa operação não é permitida nesta dificuldade.",
+  "gameFeedbackInvalidSyntax": "Verifique a ordem dos números, operadores e parênteses.",
+  "gameFeedbackDivisionByZero": "A divisão por zero não é permitida.",
+  "gameFeedbackDivisionNotExact": "A divisão deve resultar em um número inteiro.",
+  "gameFeedbackInvalid": "Essa igualdade é inválida. Verifique a expressão.",
+  "gameFeedbackDomainError": "Erro de domínio.",
+  "gameLatexLabel": "PRÉVIA LATEX",
+  "gameLatexFallback": "A expressão será exibida aqui",
+  "gameVerify": "Verificar",
+  "gameClear": "Limpar",
+  "gameSkip": "Pular",
+  "gameUnavailable": "$action estará disponível em uma etapa futura.",
+  "@gameUnavailable": {
+    "placeholders": {
+      "action": {
+        "type": "Object"
+      }
+    }
+  },
+  "gameVerifyAction": "Verificação",
+  "gameSkipAction": "Pular desafio",
+  "gameAttemptsTooltip": "Número de tentativas",
+  "gameAttemptsBadge": "$count tentativas",
+  "@gameAttemptsBadge": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressTitle": "Progresso",
+  "progressSubtitle": "Acompanhe seus desafios e resultados.",
+  "progressDemoLabel": "DADOS DE DEMONSTRAÇÃO",
+  "progressResolved": "Desafios resolvidos",
+  "progressScore": "Pontuação",
+  "progressBestStreak": "Melhor sequência",
+  "progressBestStreakValue": "3 dias",
+  "progressCurrentStreak": "Sequência atual",
+  "progressStreakDays": "$days dias",
+  "@progressStreakDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressDifficultyEasy": "Fácil",
+  "progressDifficultyIntermediate": "Intermediário",
+  "progressDifficultyAdvanced": "Avançado",
+  "progressDifficultyHard": "Difícil",
+  "progressHistoryTitle": "Histórico",
+  "progressHistoryDemo": "Demonstração · $difficulty",
+  "@progressHistoryDemo": {
+    "placeholders": {
+      "difficulty": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressHistoryCaption": "$date · $difficulty",
+  "@progressHistoryCaption": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "difficulty": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressEmptyTitle": "Nenhum desafio resolvido ainda",
+  "progressEmptyHint": "Resolva um desafio para ver seu progresso aqui.",
+  "settingsTitle": "Configurações",
+  "settingsSubtitle": "Personalize a aparência de acordo com seu estilo de jogo.",
+  "settingsAppearance": "APARÊNCIA",
+  "settingsDarkTheme": "Tema escuro",
+  "settingsOn": "Ativado",
+  "settingsOff": "Desativado",
+  "settingsReading": "LEITURA",
+  "settingsFontSize": "Tamanho da fonte",
+  "settingsFontFamily": "Família da fonte",
+  "settingsAccentColor": "COR PRINCIPAL",
+  "settingsSelectAccentColor": "Selecionar cor principal",
+  "settingsLanguageSection": "IDIOMA / LANGUAGE",
+  "settingsLanguageLabel": "Idioma",
+  "settingsSound": "Efeitos sonoros",
+  "settingsSoundDescription": "Controle de feedback sonoro",
+  "settingsAudioSection": "ÁUDIO",
+  "settingsSoundEnabled": "Ativado",
+  "settingsSoundDisabled": "Desativado",
+  "settingsSoundStatus": "Ativado",
+  "helpTitle": "Como jogar",
+  "helpMessage": "Use os quatro números do desafio e combine operações matemáticas para alcançar o resultado indicado. Monte sua expressão antes de verificar.",
+  "helpAction": "Entendi",
+  "navHome": "Início",
+  "navGame": "Jogo",
+  "navProgress": "Progresso",
+  "navHelp": "Ajuda",
+  "navSettings": "Configurações",
+  "navRailTag": "DESAFIOS, UM PASSO DE CADA VEZ",
+  "welcomeToApp": "Bem-vindo ao aplicativo",
+  "localePortuguese": "🇧🇷 Português",
+  "localeEnglish": "🇺🇸 Inglês",
+  "systemStatus": "Sistema",
+  "themeModeLight": "Claro",
+  "themeModeDark": "Escuro",
+  "themeModeSystem": "Sistema"
+}

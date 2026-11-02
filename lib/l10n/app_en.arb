@@ -1,0 +1,167 @@
+
+{
+  "@@locale": "en",
+  "appName": "Math Puzzle",
+  "appLabel": "Math Puzzle",
+  "loginTitle": "Your next idea starts here.",
+  "loginSubtitle": "Log in to explore mathematical challenges.",
+  "loginGoogle": "Continue with Google",
+  "loginEmail": "Continue with email",
+  "loginUnavailable": "This option will be available soon.",
+  "loginLanguage": "LANGUAGE",
+  "loginBack": "Back to start",
+  "loginTeamTitle": "TEAM MEMBERS",
+  "loginTeamNames": "Team member 1 · Team member 2",
+  "loginBrandTag": "NUMBERS. IDEAS. DISCOVERIES.",
+  "loginBrandHeading": "A new way\nto think with numbers.",
+  "homeGreeting": "Hello, player",
+  "homeSubtitle": "Ready for a new challenge?",
+  "homeAccessAccount": "Access account",
+  "homeChallengeTitle": "REACH THE RESULT",
+  "homePlayNow": "Play now",
+  "homeContinue": "Continue playing",
+  "homeYourSpace": "Your space",
+  "homeStatsLabel": "DEMONSTRATION DATA",
+  "homeStepTitle": "One idea in three steps",
+  "homeStepOne": "Receive four numbers",
+  "homeStepTwo": "Combine operations",
+  "homeStepThree": "Reach the target",
+  "homeSequence": "Sequence",
+  "homeStreakValue": "3 days",
+  "homeChallenges": "Challenges",
+  "homePrecision": "Accuracy",
+  "gameBack": "Back to start",
+  "gameTitle": "Challenge",
+  "gameTimer": "--:--",
+  "gameChallengeDay": "CHALLENGE OF THE DAY",
+  "gameLevel": "DIFFICULTY",
+  "gameEasy": "ESASY",  
+  "gameIntermediate": "INTERMEDIATE",
+  "gameAdvanced": "ADVANCED",
+  "gameHard": "HARD",
+  "gameResultTarget": "MAKE BOTH SIDES EQUAL",
+  "gameRuleHint": "Use each of the four numbers once to form a valid equality.",
+  "gameLeftSide": "LEFT SIDE",
+  "gameRightSide": "RIGHT SIDE",
+  "gameNumbers": "NUMBERS",
+  "gameOperations": "OPERATORS",
+  "gameExpressionLabel": "YOUR EXPRESSION",
+  "gameExpressionPlaceholder": "Build your expression",
+  "gameBoardEmptyHint": "Drag or tap to add to the equation",
+  "gameRemoveTokenHint": "Tap to remove",
+  "gameUndo": "Undo",
+  "gameEquality": "=",
+  "gameContinue": "Next challenge",
+  "gameFeedbackCorrect": "Correct equality!",
+  "gameFeedbackIncorrect": "The two sides are not equal. Try again.",
+  "gameFeedbackIncomplete": "Complete both sides and use all four numbers.",
+  "gameFeedbackMissingEquality": "Insert the equal sign (=) to form the equality.",
+  "gameFeedbackWrongNumbers": "Use each available number exactly once.",
+  "gameFeedbackOperationNotAllowed": "That operation is not allowed at this difficulty.",
+  "gameFeedbackInvalidSyntax": "Check the order of numbers, operators and parentheses.",
+  "gameFeedbackDivisionByZero": "Division by zero is not allowed.",
+  "gameFeedbackDivisionNotExact": "Division must produce an integer result.",
+  "gameFeedbackInvalid": "This equality is invalid. Check the expression.",
+  "gameFeedbackDomainError": "Domain error.",
+  "gameLatexLabel": "LATEX PREVIEW",
+  "gameLatexFallback": "The expression will be rendered here",
+  "gameVerify": "Verify",
+  "gameClear": "Clear",
+  "gameSkip": "Skip",
+  "gameUnavailable": "$action will be available in a future step.",
+  "@gameUnavailable": {
+    "placeholders": {
+      "action": {
+        "type": "Object"
+      }
+    }
+  },
+  "gameVerifyAction": "Verification",
+  "gameSkipAction": "Skip challenge",
+  "gameAttemptsTooltip": "Number of attempts",
+  "gameAttemptsBadge": "$count tries",
+  "@gameAttemptsBadge": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressTitle": "Progress",
+  "progressSubtitle": "Track your challenges and results.",
+  "progressDemoLabel": "DEMONSTRATION DATA",
+  "progressResolved": "Solved challenges",
+  "progressScore": "Score",
+  "progressBestStreak": "Best streak",
+  "progressBestStreakValue": "3 days",
+  "progressCurrentStreak": "Current streak",
+  "progressStreakDays": "$days days",
+  "@progressStreakDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressDifficultyEasy": "Easy",
+  "progressDifficultyIntermediate": "Intermediate",
+  "progressDifficultyAdvanced": "Advanced",
+  "progressDifficultyHard": "Hard",
+  "progressHistoryTitle": "History",
+  "progressHistoryDemo": "Demo · $difficulty",
+  "@progressHistoryDemo": {
+    "placeholders": {
+      "difficulty": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressHistoryCaption": "$date · $difficulty",
+  "@progressHistoryCaption": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "difficulty": {
+        "type": "Object"
+      }
+    }
+  },
+  "progressEmptyTitle": "No challenges solved yet",
+  "progressEmptyHint": "Solve a challenge to see your progress here.",
+  "settingsTitle": "Settings",
+  "settingsSubtitle": "Adjust the appearance to your gaming style.",
+  "settingsAppearance": "APPEARANCE",
+  "settingsDarkTheme": "Dark theme",
+  "settingsOn": "Enabled",
+  "settingsOff": "Disabled",
+  "settingsReading": "READING",
+  "settingsFontSize": "Font size",
+  "settingsFontFamily": "Type family",
+  "settingsAccentColor": "PRIMARY COLOR",
+  "settingsSelectAccentColor": "Select primary color",
+  "settingsLanguageSection": "LANGUAGE / IDIOMA",
+  "settingsLanguageLabel": "Language",
+  "settingsSound": "Sound effects",
+  "settingsSoundDescription": "Audio feedback control",
+  "settingsAudioSection": "AUDIO",
+  "settingsSoundEnabled": "Enabled",
+  "settingsSoundDisabled": "Disabled",
+  "settingsSoundStatus": "Enabled",
+  "helpTitle": "How to play",
+  "helpMessage": "Use the four numbers from the challenge and combine mathematical operations to reach the indicated result. Arrange your expression before verifying.",
+  "helpAction": "Got it",
+  "navHome": "Home",
+  "navGame": "Game",
+  "navProgress": "Progress",
+  "navHelp": "Help",
+  "navSettings": "Settings",
+  "navRailTag": "CHALLENGES, ONE STEP AT A TIME",
+  "welcomeToApp": "Welcome to the app",
+  "localePortuguese": "🇧🇷 Português",
+  "localeEnglish": "🇺🇸 English",
+  "systemStatus": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
+  "themeModeSystem": "System"
+}
