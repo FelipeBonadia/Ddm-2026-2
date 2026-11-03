@@ -8,11 +8,24 @@ import '../features/help/presentation/help_dialog.dart';
 import '../providers/app_providers.dart';
 import '../services/sound_service.dart';
 
-class AppNavigationBar extends ConsumerWidget {
+/// Largura máxima da barra: em telas largas (computador/web) ela não se
+/// estica por toda a janela, com os ícones muito separados.
+const _maxBarWidth = 560.0;
+
+class AppNavigationBar extends ConsumerStatefulWidget {
   const AppNavigationBar({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppNavigationBar> createState() => _AppNavigationBarState();
+}
+
+class _AppNavigationBarState extends ConsumerState<AppNavigationBar> {
+  /// Permite devolver o destaque da barra para a página atual depois que o
+  /// diálogo de ajuda fecha (a ajuda não é uma página).
+  final _barKey = GlobalKey<CurvedNavigationBarState>();
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final items = <_NavigationDestination>[
       _NavigationDestination(
@@ -29,7 +42,8 @@ class AppNavigationBar extends ConsumerWidget {
       _NavigationDestination(l10n.navHelp, Icons.help_outline_rounded, null),
       _NavigationDestination(
         l10n.navSettings,
-        Icons.tune_rounded,
+        // Ícone de engrenagem: o enunciado pede um ícone de configurações.
+        Icons.settings_rounded,
         AppSection.settings,
       ),
     ];
@@ -37,51 +51,67 @@ class AppNavigationBar extends ConsumerWidget {
     final location = GoRouterState.of(context).uri.path;
     final currentSection =
         sectionForLocation(location) ?? ref.watch(selectedSectionProvider);
+    // Só páginas têm destaque: o item de ajuda (section == null) nunca é o
+    // "atual", mesmo que currentSection seja nulo.
     final currentIndex = items.indexWhere(
-      (item) => item.section == currentSection,
+      (item) => item.section != null && item.section == currentSection,
     );
     final selectedIndex = currentIndex < 0 ? 0 : currentIndex;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return SafeArea(
-      top: false,
-      child: CurvedNavigationBar(
-        index: selectedIndex,
-        height: 62,
-        color: colorScheme.surface,
-        buttonBackgroundColor: colorScheme.primary,
-        backgroundColor: theme.scaffoldBackgroundColor,
-        animationDuration: const Duration(milliseconds: 260),
-        items: [
-          for (var index = 0; index < items.length; index++)
-            _NavigationButton(
-              label: items[index].label,
-              icon: items[index].icon,
-              selected: index == selectedIndex,
+    return ColoredBox(
+      color: theme.scaffoldBackgroundColor,
+      child: SafeArea(
+        top: false,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _maxBarWidth),
+            child: CurvedNavigationBar(
+              key: _barKey,
+              index: selectedIndex,
+              height: 62,
+              color: colorScheme.surface,
+              buttonBackgroundColor: colorScheme.primary,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              animationDuration: const Duration(milliseconds: 260),
+              items: [
+                for (var index = 0; index < items.length; index++)
+                  _NavigationButton(
+                    label: items[index].label,
+                    icon: items[index].icon,
+                    selected: index == selectedIndex,
+                  ),
+              ],
+              onTap: (index) => _selectDestination(items[index], selectedIndex),
             ),
-        ],
-        onTap: (index) => _selectDestination(context, ref, items[index]),
+          ),
+        ),
       ),
     );
   }
 
-  void _selectDestination(
-    BuildContext context,
-    WidgetRef ref,
+  Future<void> _selectDestination(
     _NavigationDestination destination,
-  ) {
+    int currentIndex,
+  ) async {
     final soundEnabled = ref.read(soundEnabledProvider);
     final effect = destination.section == null
         ? AppSoundEffect.help
         : AppSoundEffect.navigation;
     ref.read(appSoundServiceProvider).play(effect, enabled: soundEnabled);
+
     final section = destination.section;
     if (section == null) {
-      showDialog<void>(
+      await showDialog<void>(
         context: context,
         builder: (context) => const HelpDialog(),
       );
+      // A barra moveu o destaque para "Ajuda" ao tocar; volta para a página
+      // em que o jogador realmente está.
+      if (mounted) _barKey.currentState?.setPage(currentIndex);
       return;
     }
     ref.read(selectedSectionProvider.notifier).select(section);

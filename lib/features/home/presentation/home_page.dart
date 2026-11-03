@@ -117,16 +117,30 @@ class HomePage extends ConsumerWidget {
                         ),
                       ],
                     );
+                    final hasProgress = game.hasContent && !game.solved;
                     final button = FilledButton.icon(
                       onPressed: () {
                         playPrimaryAction();
+                        if (game.solved) {
+                          ref
+                              .read(gameSessionProvider.notifier)
+                              .nextChallenge();
+                        }
                         ref
                             .read(selectedSectionProvider.notifier)
                             .select(AppSection.game);
                         context.go(AppRoutes.game);
                       },
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      label: Text(l10n.homePlayNow),
+                      icon: Icon(
+                        hasProgress
+                            ? Icons.play_circle_outline_rounded
+                            : Icons.play_arrow_rounded,
+                      ),
+                      label: Text(
+                        hasProgress ? l10n.homeContinue : l10n.homePlayNow,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                     return constraints.maxWidth < 560
                         ? Column(
@@ -141,27 +155,13 @@ class HomePage extends ConsumerWidget {
                             children: [
                               Expanded(child: content),
                               const SizedBox(width: 20),
-                              SizedBox(width: 170, child: button),
+                              button,
                             ],
                           );
                   },
                 ),
               ),
-              const SizedBox(height: 26),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    playPrimaryAction();
-                    ref
-                        .read(selectedSectionProvider.notifier)
-                        .select(AppSection.game);
-                    context.go(AppRoutes.game);
-                  },
-                  icon: const Icon(Icons.play_circle_outline_rounded),
-                  label: Text(l10n.homeContinue),
-                ),
-              ),
+
               const SizedBox(height: 26),
               Text(
                 l10n.homeYourSpace,

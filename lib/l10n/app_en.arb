@@ -1,4 +1,3 @@
-
 {
   "@@locale": "en",
   "appName": "Math Puzzle",
@@ -17,17 +16,16 @@
   "homeGreeting": "Hello, player",
   "homeSubtitle": "Ready for a new challenge?",
   "homeAccessAccount": "Access account",
-  "homeChallengeTitle": "REACH THE RESULT",
+  "homeChallengeTitle": "YOUR CURRENT CHALLENGE",
   "homePlayNow": "Play now",
-  "homeContinue": "Continue playing",
+  "homeContinue": "Continue",
   "homeYourSpace": "Your space",
-  "homeStatsLabel": "DEMONSTRATION DATA",
+  "homeStatsLabel": "YOUR STATS",
   "homeStepTitle": "One idea in three steps",
   "homeStepOne": "Receive four numbers",
   "homeStepTwo": "Combine operations",
-  "homeStepThree": "Reach the target",
-  "homeSequence": "Sequence",
-  "homeStreakValue": "3 days",
+  "homeStepThree": "Make both sides equal",
+  "homeSequence": "Streak",
   "homeChallenges": "Challenges",
   "homePrecision": "Accuracy",
   "gameBack": "Back to start",
@@ -35,10 +33,10 @@
   "gameTimer": "--:--",
   "gameChallengeDay": "CHALLENGE OF THE DAY",
   "gameLevel": "DIFFICULTY",
-  "gameEasy": "ESASY",  
-  "gameIntermediate": "INTERMEDIATE",
-  "gameAdvanced": "ADVANCED",
-  "gameHard": "HARD",
+  "gameEasy": "Easy",
+  "gameIntermediate": "Intermediate",
+  "gameAdvanced": "Advanced",
+  "gameHard": "Hard",
   "gameResultTarget": "MAKE BOTH SIDES EQUAL",
   "gameRuleHint": "Use each of the four numbers once to form a valid equality.",
   "gameLeftSide": "LEFT SIDE",
@@ -62,44 +60,43 @@
   "gameFeedbackDivisionByZero": "Division by zero is not allowed.",
   "gameFeedbackDivisionNotExact": "Division must produce an integer result.",
   "gameFeedbackInvalid": "This equality is invalid. Check the expression.",
-  "gameFeedbackDomainError": "Domain error.",
+  "gameFeedbackDomainError": "Invalid operation: inexact root, factorial out of range, or result too large.",
   "gameLatexLabel": "LATEX PREVIEW",
   "gameLatexFallback": "The expression will be rendered here",
   "gameVerify": "Verify",
   "gameClear": "Clear",
   "gameSkip": "Skip",
-  "gameUnavailable": "$action will be available in a future step.",
+  "gameUnavailable": "{action} will be available in a future step.",
   "@gameUnavailable": {
     "placeholders": {
       "action": {
-        "type": "Object"
+        "type": "String"
       }
     }
   },
   "gameVerifyAction": "Verification",
   "gameSkipAction": "Skip challenge",
   "gameAttemptsTooltip": "Number of attempts",
-  "gameAttemptsBadge": "$count tries",
+  "gameAttemptsBadge": "{count, plural, =0{0 tries} =1{1 try} other{{count} tries}}",
   "@gameAttemptsBadge": {
     "placeholders": {
       "count": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },
   "progressTitle": "Progress",
   "progressSubtitle": "Track your challenges and results.",
-  "progressDemoLabel": "DEMONSTRATION DATA",
+  "progressDemoLabel": "YOUR PROGRESS",
   "progressResolved": "Solved challenges",
   "progressScore": "Score",
   "progressBestStreak": "Best streak",
-  "progressBestStreakValue": "3 days",
   "progressCurrentStreak": "Current streak",
-  "progressStreakDays": "$days days",
+  "progressStreakDays": "{days, plural, =0{0 days} =1{1 day} other{{days} days}}",
   "@progressStreakDays": {
     "placeholders": {
       "days": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },
@@ -108,22 +105,14 @@
   "progressDifficultyAdvanced": "Advanced",
   "progressDifficultyHard": "Hard",
   "progressHistoryTitle": "History",
-  "progressHistoryDemo": "Demo · $difficulty",
-  "@progressHistoryDemo": {
-    "placeholders": {
-      "difficulty": {
-        "type": "Object"
-      }
-    }
-  },
-  "progressHistoryCaption": "$date · $difficulty",
+  "progressHistoryCaption": "{date} · {difficulty}",
   "@progressHistoryCaption": {
     "placeholders": {
       "date": {
-        "type": "Object"
+        "type": "String"
       },
       "difficulty": {
-        "type": "Object"
+        "type": "String"
       }
     }
   },
@@ -149,7 +138,7 @@
   "settingsSoundDisabled": "Disabled",
   "settingsSoundStatus": "Enabled",
   "helpTitle": "How to play",
-  "helpMessage": "Use the four numbers from the challenge and combine mathematical operations to reach the indicated result. Arrange your expression before verifying.",
+  "helpMessage": "Use each of the four numbers once and build an equality. The = sign is already on the board.\n\nOperators by difficulty:\n• Easy: + − × ÷, parentheses, √, ∛, !, **, |x|, ⌊x⌋ and ⌈x⌉. It is the only level that allows non-integer division (5/2).\n• Intermediate: the same, without floor and ceiling.\n• Advanced: + − × ÷, parentheses, √, ! and |x|.\n• Hard: + − × ÷, parentheses and |x|.\n\nFunctions take a group, √ (8 + 1), or a single number, √ 9. A minus sign before a group negates it: −(2 − 5) = 3.\n\nTap a piece on the board to remove it, and use Skip if a challenge is too hard.",
   "helpAction": "Got it",
   "navHome": "Home",
   "navGame": "Game",

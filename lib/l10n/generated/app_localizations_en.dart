@@ -58,19 +58,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeAccessAccount => 'Access account';
 
   @override
-  String get homeChallengeTitle => 'REACH THE RESULT';
+  String get homeChallengeTitle => 'YOUR CURRENT CHALLENGE';
 
   @override
   String get homePlayNow => 'Play now';
 
   @override
-  String get homeContinue => 'Continue playing';
+  String get homeContinue => 'Continue';
 
   @override
   String get homeYourSpace => 'Your space';
 
   @override
-  String get homeStatsLabel => 'DEMONSTRATION DATA';
+  String get homeStatsLabel => 'YOUR STATS';
 
   @override
   String get homeStepTitle => 'One idea in three steps';
@@ -82,13 +82,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeStepTwo => 'Combine operations';
 
   @override
-  String get homeStepThree => 'Reach the target';
+  String get homeStepThree => 'Make both sides equal';
 
   @override
-  String get homeSequence => 'Sequence';
-
-  @override
-  String get homeStreakValue => '3 days';
+  String get homeSequence => 'Streak';
 
   @override
   String get homeChallenges => 'Challenges';
@@ -112,16 +109,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameLevel => 'DIFFICULTY';
 
   @override
-  String get gameEasy => 'ESASY';
+  String get gameEasy => 'Easy';
 
   @override
-  String get gameIntermediate => 'INTERMEDIATE';
+  String get gameIntermediate => 'Intermediate';
 
   @override
-  String get gameAdvanced => 'ADVANCED';
+  String get gameAdvanced => 'Advanced';
 
   @override
-  String get gameHard => 'HARD';
+  String get gameHard => 'Hard';
 
   @override
   String get gameResultTarget => 'MAKE BOTH SIDES EQUAL';
@@ -201,7 +198,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'This equality is invalid. Check the expression.';
 
   @override
-  String get gameFeedbackDomainError => 'Domain error.';
+  String get gameFeedbackDomainError =>
+      'Invalid operation: inexact root, factorial out of range, or result too large.';
 
   @override
   String get gameLatexLabel => 'LATEX PREVIEW';
@@ -219,8 +217,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameSkip => 'Skip';
 
   @override
-  String gameUnavailable(Object action) {
-    return '\$action will be available in a future step.';
+  String gameUnavailable(String action) {
+    return '$action will be available in a future step.';
   }
 
   @override
@@ -233,8 +231,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameAttemptsTooltip => 'Number of attempts';
 
   @override
-  String gameAttemptsBadge(Object count) {
-    return '\$count tries';
+  String gameAttemptsBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tries',
+      one: '1 try',
+      zero: '0 tries',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -244,7 +249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressSubtitle => 'Track your challenges and results.';
 
   @override
-  String get progressDemoLabel => 'DEMONSTRATION DATA';
+  String get progressDemoLabel => 'YOUR PROGRESS';
 
   @override
   String get progressResolved => 'Solved challenges';
@@ -256,14 +261,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressBestStreak => 'Best streak';
 
   @override
-  String get progressBestStreakValue => '3 days';
-
-  @override
   String get progressCurrentStreak => 'Current streak';
 
   @override
-  String progressStreakDays(Object days) {
-    return '\$days days';
+  String progressStreakDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+      zero: '0 days',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -282,13 +291,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressHistoryTitle => 'History';
 
   @override
-  String progressHistoryDemo(Object difficulty) {
-    return 'Demo · \$difficulty';
-  }
-
-  @override
-  String progressHistoryCaption(Object date, Object difficulty) {
-    return '\$date · \$difficulty';
+  String progressHistoryCaption(String date, String difficulty) {
+    return '$date · $difficulty';
   }
 
   @override
@@ -360,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpMessage =>
-      'Use the four numbers from the challenge and combine mathematical operations to reach the indicated result. Arrange your expression before verifying.';
+      'Use each of the four numbers once and build an equality. The = sign is already on the board.\n\nOperators by difficulty:\n• Easy: + − × ÷, parentheses, √, ∛, !, **, |x|, ⌊x⌋ and ⌈x⌉. It is the only level that allows non-integer division (5/2).\n• Intermediate: the same, without floor and ceiling.\n• Advanced: + − × ÷, parentheses, √, ! and |x|.\n• Hard: + − × ÷, parentheses and |x|.\n\nFunctions take a group, √ (8 + 1), or a single number, √ 9. A minus sign before a group negates it: −(2 − 5) = 3.\n\nTap a piece on the board to remove it, and use Skip if a challenge is too hard.';
 
   @override
   String get helpAction => 'Got it';

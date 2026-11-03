@@ -15,8 +15,8 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Olá, jogador'), findsOneWidget);
-    expect(find.text('DADOS DEMONSTRATIVOS'), findsOneWidget);
-    expect(find.text('Continuar jogando'), findsOneWidget);
+    expect(find.text('SEU PROGRESSO'), findsOneWidget);
+    expect(find.text('Jogar agora'), findsOneWidget);
 
     await tester.tap(find.text('Jogar agora'));
     await tester.pumpAndSettle();

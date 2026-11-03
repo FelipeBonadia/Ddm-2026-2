@@ -102,13 +102,13 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In pt, this message translates to:
-  /// **'Desafio Matemático'**
+  /// **'Math Puzzle'**
   String get appName;
 
   /// No description provided for @appLabel.
   ///
   /// In pt, this message translates to:
-  /// **'Desafio Matemático'**
+  /// **'Math Puzzle'**
   String get appLabel;
 
   /// No description provided for @loginTitle.
@@ -126,7 +126,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginGoogle.
   ///
   /// In pt, this message translates to:
-  /// **'Continuar com Google'**
+  /// **'Continuar com o Google'**
   String get loginGoogle;
 
   /// No description provided for @loginEmail.
@@ -156,7 +156,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTeamTitle.
   ///
   /// In pt, this message translates to:
-  /// **'INTEGRANTES DA EQUIPE'**
+  /// **'INTEGRANTES'**
   String get loginTeamTitle;
 
   /// No description provided for @loginTeamNames.
@@ -174,7 +174,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginBrandHeading.
   ///
   /// In pt, this message translates to:
-  /// **'Uma nova maneira\nde pensar com números.'**
+  /// **'Uma nova forma\nde pensar com números.'**
   String get loginBrandHeading;
 
   /// No description provided for @homeGreeting.
@@ -198,7 +198,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeChallengeTitle.
   ///
   /// In pt, this message translates to:
-  /// **'ALCANCE O RESULTADO'**
+  /// **'SEU DESAFIO ATUAL'**
   String get homeChallengeTitle;
 
   /// No description provided for @homePlayNow.
@@ -210,7 +210,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeContinue.
   ///
   /// In pt, this message translates to:
-  /// **'Continuar jogando'**
+  /// **'Continuar'**
   String get homeContinue;
 
   /// No description provided for @homeYourSpace.
@@ -222,13 +222,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeStatsLabel.
   ///
   /// In pt, this message translates to:
-  /// **'DADOS DE DEMONSTRAÇÃO'**
+  /// **'SUAS ESTATÍSTICAS'**
   String get homeStatsLabel;
 
   /// No description provided for @homeStepTitle.
   ///
   /// In pt, this message translates to:
-  /// **'Uma ideia em três etapas'**
+  /// **'Uma ideia em três passos'**
   String get homeStepTitle;
 
   /// No description provided for @homeStepOne.
@@ -246,7 +246,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeStepThree.
   ///
   /// In pt, this message translates to:
-  /// **'Alcance o resultado'**
+  /// **'Iguale os dois lados'**
   String get homeStepThree;
 
   /// No description provided for @homeSequence.
@@ -254,12 +254,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Sequência'**
   String get homeSequence;
-
-  /// No description provided for @homeStreakValue.
-  ///
-  /// In pt, this message translates to:
-  /// **'3 dias'**
-  String get homeStreakValue;
 
   /// No description provided for @homeChallenges.
   ///
@@ -306,25 +300,25 @@ abstract class AppLocalizations {
   /// No description provided for @gameEasy.
   ///
   /// In pt, this message translates to:
-  /// **'FÁCIL'**
+  /// **'Fácil'**
   String get gameEasy;
 
   /// No description provided for @gameIntermediate.
   ///
   /// In pt, this message translates to:
-  /// **'INTERMEDIÁRIO'**
+  /// **'Intermediário'**
   String get gameIntermediate;
 
   /// No description provided for @gameAdvanced.
   ///
   /// In pt, this message translates to:
-  /// **'AVANÇADO'**
+  /// **'Avançado'**
   String get gameAdvanced;
 
   /// No description provided for @gameHard.
   ///
   /// In pt, this message translates to:
-  /// **'DIFÍCIL'**
+  /// **'Difícil'**
   String get gameHard;
 
   /// No description provided for @gameResultTarget.
@@ -336,7 +330,7 @@ abstract class AppLocalizations {
   /// No description provided for @gameRuleHint.
   ///
   /// In pt, this message translates to:
-  /// **'Use cada um dos quatro números uma única vez para formar uma igualdade válida.'**
+  /// **'Use cada um dos quatro números uma vez para formar uma igualdade válida.'**
   String get gameRuleHint;
 
   /// No description provided for @gameLeftSide.
@@ -444,13 +438,13 @@ abstract class AppLocalizations {
   /// No description provided for @gameFeedbackInvalidSyntax.
   ///
   /// In pt, this message translates to:
-  /// **'Verifique a ordem dos números, operadores e parênteses.'**
+  /// **'Confira a ordem dos números, operadores e parênteses.'**
   String get gameFeedbackInvalidSyntax;
 
   /// No description provided for @gameFeedbackDivisionByZero.
   ///
   /// In pt, this message translates to:
-  /// **'A divisão por zero não é permitida.'**
+  /// **'Não é permitido dividir por zero.'**
   String get gameFeedbackDivisionByZero;
 
   /// No description provided for @gameFeedbackDivisionNotExact.
@@ -462,25 +456,25 @@ abstract class AppLocalizations {
   /// No description provided for @gameFeedbackInvalid.
   ///
   /// In pt, this message translates to:
-  /// **'Essa igualdade é inválida. Verifique a expressão.'**
+  /// **'Esta igualdade é inválida. Confira a expressão.'**
   String get gameFeedbackInvalid;
 
   /// No description provided for @gameFeedbackDomainError.
   ///
   /// In pt, this message translates to:
-  /// **'Erro de domínio.'**
+  /// **'Operação inválida: raiz não exata, fatorial fora do limite ou resultado grande demais.'**
   String get gameFeedbackDomainError;
 
   /// No description provided for @gameLatexLabel.
   ///
   /// In pt, this message translates to:
-  /// **'PRÉVIA LATEX'**
+  /// **'PRÉVIA EM LATEX'**
   String get gameLatexLabel;
 
   /// No description provided for @gameLatexFallback.
   ///
   /// In pt, this message translates to:
-  /// **'A expressão será exibida aqui'**
+  /// **'A expressão será renderizada aqui'**
   String get gameLatexFallback;
 
   /// No description provided for @gameVerify.
@@ -504,8 +498,8 @@ abstract class AppLocalizations {
   /// No description provided for @gameUnavailable.
   ///
   /// In pt, this message translates to:
-  /// **'\$action estará disponível em uma etapa futura.'**
-  String gameUnavailable(Object action);
+  /// **'{action} estará disponível em uma etapa futura.'**
+  String gameUnavailable(String action);
 
   /// No description provided for @gameVerifyAction.
   ///
@@ -528,8 +522,8 @@ abstract class AppLocalizations {
   /// No description provided for @gameAttemptsBadge.
   ///
   /// In pt, this message translates to:
-  /// **'\$count tentativas'**
-  String gameAttemptsBadge(Object count);
+  /// **'{count, plural, =0{0 tentativas} =1{1 tentativa} other{{count} tentativas}}'**
+  String gameAttemptsBadge(int count);
 
   /// No description provided for @progressTitle.
   ///
@@ -546,7 +540,7 @@ abstract class AppLocalizations {
   /// No description provided for @progressDemoLabel.
   ///
   /// In pt, this message translates to:
-  /// **'DADOS DE DEMONSTRAÇÃO'**
+  /// **'SEU PROGRESSO'**
   String get progressDemoLabel;
 
   /// No description provided for @progressResolved.
@@ -567,12 +561,6 @@ abstract class AppLocalizations {
   /// **'Melhor sequência'**
   String get progressBestStreak;
 
-  /// No description provided for @progressBestStreakValue.
-  ///
-  /// In pt, this message translates to:
-  /// **'3 dias'**
-  String get progressBestStreakValue;
-
   /// No description provided for @progressCurrentStreak.
   ///
   /// In pt, this message translates to:
@@ -582,8 +570,8 @@ abstract class AppLocalizations {
   /// No description provided for @progressStreakDays.
   ///
   /// In pt, this message translates to:
-  /// **'\$days dias'**
-  String progressStreakDays(Object days);
+  /// **'{days, plural, =0{0 dias} =1{1 dia} other{{days} dias}}'**
+  String progressStreakDays(int days);
 
   /// No description provided for @progressDifficultyEasy.
   ///
@@ -615,17 +603,11 @@ abstract class AppLocalizations {
   /// **'Histórico'**
   String get progressHistoryTitle;
 
-  /// No description provided for @progressHistoryDemo.
-  ///
-  /// In pt, this message translates to:
-  /// **'Demonstração · \$difficulty'**
-  String progressHistoryDemo(Object difficulty);
-
   /// No description provided for @progressHistoryCaption.
   ///
   /// In pt, this message translates to:
-  /// **'\$date · \$difficulty'**
-  String progressHistoryCaption(Object date, Object difficulty);
+  /// **'{date} · {difficulty}'**
+  String progressHistoryCaption(String date, String difficulty);
 
   /// No description provided for @progressEmptyTitle.
   ///
@@ -648,7 +630,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSubtitle.
   ///
   /// In pt, this message translates to:
-  /// **'Personalize a aparência de acordo com seu estilo de jogo.'**
+  /// **'Ajuste a aparência ao seu estilo de jogo.'**
   String get settingsSubtitle;
 
   /// No description provided for @settingsAppearance.
@@ -690,7 +672,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFontFamily.
   ///
   /// In pt, this message translates to:
-  /// **'Família da fonte'**
+  /// **'Tipo de fonte'**
   String get settingsFontFamily;
 
   /// No description provided for @settingsAccentColor.
@@ -702,13 +684,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSelectAccentColor.
   ///
   /// In pt, this message translates to:
-  /// **'Selecionar cor principal'**
+  /// **'Selecione a cor principal'**
   String get settingsSelectAccentColor;
 
   /// No description provided for @settingsLanguageSection.
   ///
   /// In pt, this message translates to:
-  /// **'IDIOMA / LANGUAGE'**
+  /// **'LANGUAGE / IDIOMA'**
   String get settingsLanguageSection;
 
   /// No description provided for @settingsLanguageLabel.
@@ -726,7 +708,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSoundDescription.
   ///
   /// In pt, this message translates to:
-  /// **'Controle de feedback sonoro'**
+  /// **'Controle do retorno sonoro'**
   String get settingsSoundDescription;
 
   /// No description provided for @settingsAudioSection.
@@ -762,7 +744,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpMessage.
   ///
   /// In pt, this message translates to:
-  /// **'Use os quatro números do desafio e combine operações matemáticas para alcançar o resultado indicado. Monte sua expressão antes de verificar.'**
+  /// **'Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nToque em uma peça do tabuleiro para removê-la e use Pular se um desafio estiver difícil demais.'**
   String get helpMessage;
 
   /// No description provided for @helpAction.
@@ -810,7 +792,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeToApp.
   ///
   /// In pt, this message translates to:
-  /// **'Bem-vindo ao aplicativo'**
+  /// **'Bem-vindo ao app'**
   String get welcomeToApp;
 
   /// No description provided for @localePortuguese.
@@ -822,7 +804,7 @@ abstract class AppLocalizations {
   /// No description provided for @localeEnglish.
   ///
   /// In pt, this message translates to:
-  /// **'🇺🇸 Inglês'**
+  /// **'🇺🇸 English'**
   String get localeEnglish;
 
   /// No description provided for @systemStatus.

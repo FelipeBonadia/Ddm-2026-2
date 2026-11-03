@@ -265,14 +265,14 @@ class GameSessionController extends Notifier<GameSessionState> {
   void setDifficulty(GameDifficulty difficulty) {
     state = GameSessionState.initial(
       challenge: _generate(difficulty),
-      attempts: state.attempts,
+      attempts: 0,
     );
   }
 
   void skipChallenge() {
     state = GameSessionState.initial(
       challenge: _generate(state.challenge.difficulty),
-      attempts: state.attempts,
+      attempts: 0,
     );
   }
 
@@ -280,7 +280,7 @@ class GameSessionController extends Notifier<GameSessionState> {
     if (!state.solved) return;
     state = GameSessionState.initial(
       challenge: _generate(state.challenge.difficulty),
-      attempts: state.attempts,
+      attempts: 0,
     );
   }
 

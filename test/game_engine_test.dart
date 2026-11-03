@@ -45,13 +45,13 @@ void main() {
     expect(result.error, GameExpressionError.wrongNumbers);
   });
 
-  test('medium difficulty rejects division', () {
+  test('advanced difficulty rejects power', () {
     final challenge = GameChallenge(
-      numbers: [6, 2, 3, 1],
-      difficulty: GameDifficulty.intermediate,
+      numbers: [2, 3, 7, 1],
+      difficulty: GameDifficulty.advanced,
     );
 
-    final result = evaluator.evaluate('6 / 2 = 3 * 1', challenge);
+    final result = evaluator.evaluate('2 ** 3 = 7 + 1', challenge);
 
     expect(result.error, GameExpressionError.operationNotAllowed);
   });

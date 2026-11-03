@@ -10,10 +10,10 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appName => 'Desafio Matemático';
+  String get appName => 'Math Puzzle';
 
   @override
-  String get appLabel => 'Desafio Matemático';
+  String get appLabel => 'Math Puzzle';
 
   @override
   String get loginTitle => 'Sua próxima ideia começa aqui.';
@@ -22,7 +22,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loginSubtitle => 'Entre para explorar desafios matemáticos.';
 
   @override
-  String get loginGoogle => 'Continuar com Google';
+  String get loginGoogle => 'Continuar com o Google';
 
   @override
   String get loginEmail => 'Continuar com e-mail';
@@ -37,7 +37,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loginBack => 'Voltar ao início';
 
   @override
-  String get loginTeamTitle => 'INTEGRANTES DA EQUIPE';
+  String get loginTeamTitle => 'INTEGRANTES';
 
   @override
   String get loginTeamNames => 'Integrante 1 · Integrante 2';
@@ -46,7 +46,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loginBrandTag => 'NÚMEROS. IDEIAS. DESCOBERTAS.';
 
   @override
-  String get loginBrandHeading => 'Uma nova maneira\nde pensar com números.';
+  String get loginBrandHeading => 'Uma nova forma\nde pensar com números.';
 
   @override
   String get homeGreeting => 'Olá, jogador';
@@ -58,22 +58,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeAccessAccount => 'Acessar conta';
 
   @override
-  String get homeChallengeTitle => 'ALCANCE O RESULTADO';
+  String get homeChallengeTitle => 'SEU DESAFIO ATUAL';
 
   @override
   String get homePlayNow => 'Jogar agora';
 
   @override
-  String get homeContinue => 'Continuar jogando';
+  String get homeContinue => 'Continuar';
 
   @override
   String get homeYourSpace => 'Seu espaço';
 
   @override
-  String get homeStatsLabel => 'DADOS DE DEMONSTRAÇÃO';
+  String get homeStatsLabel => 'SUAS ESTATÍSTICAS';
 
   @override
-  String get homeStepTitle => 'Uma ideia em três etapas';
+  String get homeStepTitle => 'Uma ideia em três passos';
 
   @override
   String get homeStepOne => 'Receba quatro números';
@@ -82,13 +82,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeStepTwo => 'Combine operações';
 
   @override
-  String get homeStepThree => 'Alcance o resultado';
+  String get homeStepThree => 'Iguale os dois lados';
 
   @override
   String get homeSequence => 'Sequência';
-
-  @override
-  String get homeStreakValue => '3 dias';
 
   @override
   String get homeChallenges => 'Desafios';
@@ -112,23 +109,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get gameLevel => 'DIFICULDADE';
 
   @override
-  String get gameEasy => 'FÁCIL';
+  String get gameEasy => 'Fácil';
 
   @override
-  String get gameIntermediate => 'INTERMEDIÁRIO';
+  String get gameIntermediate => 'Intermediário';
 
   @override
-  String get gameAdvanced => 'AVANÇADO';
+  String get gameAdvanced => 'Avançado';
 
   @override
-  String get gameHard => 'DIFÍCIL';
+  String get gameHard => 'Difícil';
 
   @override
   String get gameResultTarget => 'IGUALE OS DOIS LADOS';
 
   @override
   String get gameRuleHint =>
-      'Use cada um dos quatro números uma única vez para formar uma igualdade válida.';
+      'Use cada um dos quatro números uma vez para formar uma igualdade válida.';
 
   @override
   String get gameLeftSide => 'LADO ESQUERDO';
@@ -188,11 +185,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get gameFeedbackInvalidSyntax =>
-      'Verifique a ordem dos números, operadores e parênteses.';
+      'Confira a ordem dos números, operadores e parênteses.';
 
   @override
-  String get gameFeedbackDivisionByZero =>
-      'A divisão por zero não é permitida.';
+  String get gameFeedbackDivisionByZero => 'Não é permitido dividir por zero.';
 
   @override
   String get gameFeedbackDivisionNotExact =>
@@ -200,16 +196,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get gameFeedbackInvalid =>
-      'Essa igualdade é inválida. Verifique a expressão.';
+      'Esta igualdade é inválida. Confira a expressão.';
 
   @override
-  String get gameFeedbackDomainError => 'Erro de domínio.';
+  String get gameFeedbackDomainError =>
+      'Operação inválida: raiz não exata, fatorial fora do limite ou resultado grande demais.';
 
   @override
-  String get gameLatexLabel => 'PRÉVIA LATEX';
+  String get gameLatexLabel => 'PRÉVIA EM LATEX';
 
   @override
-  String get gameLatexFallback => 'A expressão será exibida aqui';
+  String get gameLatexFallback => 'A expressão será renderizada aqui';
 
   @override
   String get gameVerify => 'Verificar';
@@ -221,8 +218,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get gameSkip => 'Pular';
 
   @override
-  String gameUnavailable(Object action) {
-    return '\$action estará disponível em uma etapa futura.';
+  String gameUnavailable(String action) {
+    return '$action estará disponível em uma etapa futura.';
   }
 
   @override
@@ -235,8 +232,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get gameAttemptsTooltip => 'Número de tentativas';
 
   @override
-  String gameAttemptsBadge(Object count) {
-    return '\$count tentativas';
+  String gameAttemptsBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tentativas',
+      one: '1 tentativa',
+      zero: '0 tentativas',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -246,7 +250,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get progressSubtitle => 'Acompanhe seus desafios e resultados.';
 
   @override
-  String get progressDemoLabel => 'DADOS DE DEMONSTRAÇÃO';
+  String get progressDemoLabel => 'SEU PROGRESSO';
 
   @override
   String get progressResolved => 'Desafios resolvidos';
@@ -258,14 +262,18 @@ class AppLocalizationsPt extends AppLocalizations {
   String get progressBestStreak => 'Melhor sequência';
 
   @override
-  String get progressBestStreakValue => '3 dias';
-
-  @override
   String get progressCurrentStreak => 'Sequência atual';
 
   @override
-  String progressStreakDays(Object days) {
-    return '\$days dias';
+  String progressStreakDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days dias',
+      one: '1 dia',
+      zero: '0 dias',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -284,13 +292,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get progressHistoryTitle => 'Histórico';
 
   @override
-  String progressHistoryDemo(Object difficulty) {
-    return 'Demonstração · \$difficulty';
-  }
-
-  @override
-  String progressHistoryCaption(Object date, Object difficulty) {
-    return '\$date · \$difficulty';
+  String progressHistoryCaption(String date, String difficulty) {
+    return '$date · $difficulty';
   }
 
   @override
@@ -304,8 +307,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsTitle => 'Configurações';
 
   @override
-  String get settingsSubtitle =>
-      'Personalize a aparência de acordo com seu estilo de jogo.';
+  String get settingsSubtitle => 'Ajuste a aparência ao seu estilo de jogo.';
 
   @override
   String get settingsAppearance => 'APARÊNCIA';
@@ -326,16 +328,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsFontSize => 'Tamanho da fonte';
 
   @override
-  String get settingsFontFamily => 'Família da fonte';
+  String get settingsFontFamily => 'Tipo de fonte';
 
   @override
   String get settingsAccentColor => 'COR PRINCIPAL';
 
   @override
-  String get settingsSelectAccentColor => 'Selecionar cor principal';
+  String get settingsSelectAccentColor => 'Selecione a cor principal';
 
   @override
-  String get settingsLanguageSection => 'IDIOMA / LANGUAGE';
+  String get settingsLanguageSection => 'LANGUAGE / IDIOMA';
 
   @override
   String get settingsLanguageLabel => 'Idioma';
@@ -344,7 +346,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsSound => 'Efeitos sonoros';
 
   @override
-  String get settingsSoundDescription => 'Controle de feedback sonoro';
+  String get settingsSoundDescription => 'Controle do retorno sonoro';
 
   @override
   String get settingsAudioSection => 'ÁUDIO';
@@ -363,7 +365,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get helpMessage =>
-      'Use os quatro números do desafio e combine operações matemáticas para alcançar o resultado indicado. Monte sua expressão antes de verificar.';
+      'Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nToque em uma peça do tabuleiro para removê-la e use Pular se um desafio estiver difícil demais.';
 
   @override
   String get helpAction => 'Entendi';
@@ -387,13 +389,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get navRailTag => 'DESAFIOS, UM PASSO DE CADA VEZ';
 
   @override
-  String get welcomeToApp => 'Bem-vindo ao aplicativo';
+  String get welcomeToApp => 'Bem-vindo ao app';
 
   @override
   String get localePortuguese => '🇧🇷 Português';
 
   @override
-  String get localeEnglish => '🇺🇸 Inglês';
+  String get localeEnglish => '🇺🇸 English';
 
   @override
   String get systemStatus => 'Sistema';
@@ -489,9 +491,6 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get homeSequence => 'Sequência';
-
-  @override
-  String get homeStreakValue => '3 dias';
 
   @override
   String get homeChallenges => 'Desafios';
@@ -604,7 +603,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get gameSkip => 'Pular';
 
   @override
-  String gameUnavailable(Object action) {
+  String gameUnavailable(String action) {
     return '$action ficará disponível em uma próxima etapa.';
   }
 
@@ -633,18 +632,10 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get progressBestStreak => 'Melhor sequência';
 
   @override
-  String get progressBestStreakValue => '3 dias';
-
-  @override
   String get progressDifficultyEasy => 'Fácil';
 
   @override
   String get progressHistoryTitle => 'Histórico ilustrativo';
-
-  @override
-  String progressHistoryDemo(Object difficulty) {
-    return 'Demonstração · $difficulty';
-  }
 
   @override
   String get settingsTitle => 'Configurações';

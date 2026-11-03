@@ -1,33 +1,31 @@
-
 {
   "@@locale": "pt",
-  "appName": "Desafio Matemático",
-  "appLabel": "Desafio Matemático",
+  "appName": "Math Puzzle",
+  "appLabel": "Math Puzzle",
   "loginTitle": "Sua próxima ideia começa aqui.",
   "loginSubtitle": "Entre para explorar desafios matemáticos.",
-  "loginGoogle": "Continuar com Google",
+  "loginGoogle": "Continuar com o Google",
   "loginEmail": "Continuar com e-mail",
   "loginUnavailable": "Esta opção estará disponível em breve.",
   "loginLanguage": "IDIOMA",
   "loginBack": "Voltar ao início",
-  "loginTeamTitle": "INTEGRANTES DA EQUIPE",
+  "loginTeamTitle": "INTEGRANTES",
   "loginTeamNames": "Integrante 1 · Integrante 2",
   "loginBrandTag": "NÚMEROS. IDEIAS. DESCOBERTAS.",
-  "loginBrandHeading": "Uma nova maneira\nde pensar com números.",
+  "loginBrandHeading": "Uma nova forma\nde pensar com números.",
   "homeGreeting": "Olá, jogador",
   "homeSubtitle": "Pronto para um novo desafio?",
   "homeAccessAccount": "Acessar conta",
-  "homeChallengeTitle": "ALCANCE O RESULTADO",
+  "homeChallengeTitle": "SEU DESAFIO ATUAL",
   "homePlayNow": "Jogar agora",
-  "homeContinue": "Continuar jogando",
+  "homeContinue": "Continuar",
   "homeYourSpace": "Seu espaço",
-  "homeStatsLabel": "DADOS DE DEMONSTRAÇÃO",
-  "homeStepTitle": "Uma ideia em três etapas",
+  "homeStatsLabel": "SUAS ESTATÍSTICAS",
+  "homeStepTitle": "Uma ideia em três passos",
   "homeStepOne": "Receba quatro números",
   "homeStepTwo": "Combine operações",
-  "homeStepThree": "Alcance o resultado",
+  "homeStepThree": "Iguale os dois lados",
   "homeSequence": "Sequência",
-  "homeStreakValue": "3 dias",
   "homeChallenges": "Desafios",
   "homePrecision": "Precisão",
   "gameBack": "Voltar ao início",
@@ -35,12 +33,12 @@
   "gameTimer": "--:--",
   "gameChallengeDay": "DESAFIO DO DIA",
   "gameLevel": "DIFICULDADE",
-  "gameEasy": "FÁCIL",  
-  "gameIntermediate": "INTERMEDIÁRIO",
-  "gameAdvanced": "AVANÇADO",
-  "gameHard": "DIFÍCIL",
+  "gameEasy": "Fácil",
+  "gameIntermediate": "Intermediário",
+  "gameAdvanced": "Avançado",
+  "gameHard": "Difícil",
   "gameResultTarget": "IGUALE OS DOIS LADOS",
-  "gameRuleHint": "Use cada um dos quatro números uma única vez para formar uma igualdade válida.",
+  "gameRuleHint": "Use cada um dos quatro números uma vez para formar uma igualdade válida.",
   "gameLeftSide": "LADO ESQUERDO",
   "gameRightSide": "LADO DIREITO",
   "gameNumbers": "NÚMEROS",
@@ -58,48 +56,47 @@
   "gameFeedbackMissingEquality": "Insira o sinal de igual (=) para formar a igualdade.",
   "gameFeedbackWrongNumbers": "Use cada número disponível exatamente uma vez.",
   "gameFeedbackOperationNotAllowed": "Essa operação não é permitida nesta dificuldade.",
-  "gameFeedbackInvalidSyntax": "Verifique a ordem dos números, operadores e parênteses.",
-  "gameFeedbackDivisionByZero": "A divisão por zero não é permitida.",
+  "gameFeedbackInvalidSyntax": "Confira a ordem dos números, operadores e parênteses.",
+  "gameFeedbackDivisionByZero": "Não é permitido dividir por zero.",
   "gameFeedbackDivisionNotExact": "A divisão deve resultar em um número inteiro.",
-  "gameFeedbackInvalid": "Essa igualdade é inválida. Verifique a expressão.",
-  "gameFeedbackDomainError": "Erro de domínio.",
-  "gameLatexLabel": "PRÉVIA LATEX",
-  "gameLatexFallback": "A expressão será exibida aqui",
+  "gameFeedbackInvalid": "Esta igualdade é inválida. Confira a expressão.",
+  "gameFeedbackDomainError": "Operação inválida: raiz não exata, fatorial fora do limite ou resultado grande demais.",
+  "gameLatexLabel": "PRÉVIA EM LATEX",
+  "gameLatexFallback": "A expressão será renderizada aqui",
   "gameVerify": "Verificar",
   "gameClear": "Limpar",
   "gameSkip": "Pular",
-  "gameUnavailable": "$action estará disponível em uma etapa futura.",
+  "gameUnavailable": "{action} estará disponível em uma etapa futura.",
   "@gameUnavailable": {
     "placeholders": {
       "action": {
-        "type": "Object"
+        "type": "String"
       }
     }
   },
   "gameVerifyAction": "Verificação",
   "gameSkipAction": "Pular desafio",
   "gameAttemptsTooltip": "Número de tentativas",
-  "gameAttemptsBadge": "$count tentativas",
+  "gameAttemptsBadge": "{count, plural, =0{0 tentativas} =1{1 tentativa} other{{count} tentativas}}",
   "@gameAttemptsBadge": {
     "placeholders": {
       "count": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },
   "progressTitle": "Progresso",
   "progressSubtitle": "Acompanhe seus desafios e resultados.",
-  "progressDemoLabel": "DADOS DE DEMONSTRAÇÃO",
+  "progressDemoLabel": "SEU PROGRESSO",
   "progressResolved": "Desafios resolvidos",
   "progressScore": "Pontuação",
   "progressBestStreak": "Melhor sequência",
-  "progressBestStreakValue": "3 dias",
   "progressCurrentStreak": "Sequência atual",
-  "progressStreakDays": "$days dias",
+  "progressStreakDays": "{days, plural, =0{0 dias} =1{1 dia} other{{days} dias}}",
   "@progressStreakDays": {
     "placeholders": {
       "days": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },
@@ -108,48 +105,40 @@
   "progressDifficultyAdvanced": "Avançado",
   "progressDifficultyHard": "Difícil",
   "progressHistoryTitle": "Histórico",
-  "progressHistoryDemo": "Demonstração · $difficulty",
-  "@progressHistoryDemo": {
-    "placeholders": {
-      "difficulty": {
-        "type": "Object"
-      }
-    }
-  },
-  "progressHistoryCaption": "$date · $difficulty",
+  "progressHistoryCaption": "{date} · {difficulty}",
   "@progressHistoryCaption": {
     "placeholders": {
       "date": {
-        "type": "Object"
+        "type": "String"
       },
       "difficulty": {
-        "type": "Object"
+        "type": "String"
       }
     }
   },
   "progressEmptyTitle": "Nenhum desafio resolvido ainda",
   "progressEmptyHint": "Resolva um desafio para ver seu progresso aqui.",
   "settingsTitle": "Configurações",
-  "settingsSubtitle": "Personalize a aparência de acordo com seu estilo de jogo.",
+  "settingsSubtitle": "Ajuste a aparência ao seu estilo de jogo.",
   "settingsAppearance": "APARÊNCIA",
   "settingsDarkTheme": "Tema escuro",
   "settingsOn": "Ativado",
   "settingsOff": "Desativado",
   "settingsReading": "LEITURA",
   "settingsFontSize": "Tamanho da fonte",
-  "settingsFontFamily": "Família da fonte",
+  "settingsFontFamily": "Tipo de fonte",
   "settingsAccentColor": "COR PRINCIPAL",
-  "settingsSelectAccentColor": "Selecionar cor principal",
-  "settingsLanguageSection": "IDIOMA / LANGUAGE",
+  "settingsSelectAccentColor": "Selecione a cor principal",
+  "settingsLanguageSection": "LANGUAGE / IDIOMA",
   "settingsLanguageLabel": "Idioma",
   "settingsSound": "Efeitos sonoros",
-  "settingsSoundDescription": "Controle de feedback sonoro",
+  "settingsSoundDescription": "Controle do retorno sonoro",
   "settingsAudioSection": "ÁUDIO",
   "settingsSoundEnabled": "Ativado",
   "settingsSoundDisabled": "Desativado",
   "settingsSoundStatus": "Ativado",
   "helpTitle": "Como jogar",
-  "helpMessage": "Use os quatro números do desafio e combine operações matemáticas para alcançar o resultado indicado. Monte sua expressão antes de verificar.",
+  "helpMessage": "Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nToque em uma peça do tabuleiro para removê-la e use Pular se um desafio estiver difícil demais.",
   "helpAction": "Entendi",
   "navHome": "Início",
   "navGame": "Jogo",
@@ -157,9 +146,9 @@
   "navHelp": "Ajuda",
   "navSettings": "Configurações",
   "navRailTag": "DESAFIOS, UM PASSO DE CADA VEZ",
-  "welcomeToApp": "Bem-vindo ao aplicativo",
+  "welcomeToApp": "Bem-vindo ao app",
   "localePortuguese": "🇧🇷 Português",
-  "localeEnglish": "🇺🇸 Inglês",
+  "localeEnglish": "🇺🇸 English",
   "systemStatus": "Sistema",
   "themeModeLight": "Claro",
   "themeModeDark": "Escuro",

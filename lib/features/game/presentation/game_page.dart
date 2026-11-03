@@ -23,9 +23,20 @@ class _GamePageState extends ConsumerState<GamePage> {
   /// destaque visual no tabuleiro).
   bool _isDragging = false;
 
+  /// Incrementado sempre que as peças devem "voltar à paleta" com animação.
+  /// Cada _AnimatedReturnTile observa este valor e dispara sua animação quando
+  /// ele muda — padrão barato sem coordenador externo.
+  int _returnTick = 0;
+
   void _setDragging(bool value) {
     if (!mounted || _isDragging == value) return;
     setState(() => _isDragging = value);
+  }
+
+  /// Dispara a animação de retorno em todos os tiles da paleta.
+  void _animateReturn() {
+    if (!mounted) return;
+    setState(() => _returnTick++);
   }
 
   @override
@@ -121,17 +132,22 @@ class _GamePageState extends ConsumerState<GamePage> {
                 required _GamePiece piece,
                 required _TileStyle style,
                 bool isUsed = false,
+                int delay = 0,
               }) {
-                return _DraggableTile(
+                return _AnimatedReturnTile(
                   key: tileKey,
-                  piece: piece,
-                  style: style,
-                  metrics: metrics,
-                  enabled: canAccept(piece),
-                  isUsed: isUsed,
-                  onTap: () => addPiece(piece),
-                  onDragStarted: () => _setDragging(true),
-                  onDragEnded: () => _setDragging(false),
+                  returnTick: _returnTick,
+                  delay: delay,
+                  child: _DraggableTile(
+                    piece: piece,
+                    style: style,
+                    metrics: metrics,
+                    enabled: canAccept(piece),
+                    isUsed: isUsed,
+                    onTap: () => addPiece(piece),
+                    onDragStarted: () => _setDragging(true),
+                    onDragEnded: () => _setDragging(false),
+                  ),
                 );
               }
 
@@ -275,6 +291,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                           ),
                           style: _TileStyle.number,
                           isUsed: game.usedNumberIndexes.contains(i),
+                          delay: i * 35,
                         ),
                     ],
                   ),
@@ -285,37 +302,46 @@ class _GamePageState extends ConsumerState<GamePage> {
                   // Só aparecem as operações permitidas no nível atual.
                   _SectionLabel(l10n.gameOperations),
                   SizedBox(height: gap / 2),
-                  Wrap(
-                    spacing: gap,
-                    runSpacing: gap,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      for (final op in GameOperation.values)
-                        if (game.challenge.allowedOperations.contains(op))
+                  Builder(
+                    builder: (context) {
+                      var opIndex = game.challenge.numbers.length;
+                      return Wrap(
+                        spacing: gap,
+                        runSpacing: gap,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          for (final op in GameOperation.values)
+                            if (game.challenge.allowedOperations.contains(op))
+                              paletteTile(
+                                tileKey: ValueKey('game-operation-${op.name}'),
+                                piece: _GamePiece.operation(op, _opLabel(op)),
+                                style: _TileStyle.operation,
+                                delay: (opIndex++) * 30,
+                              ),
                           paletteTile(
-                            tileKey: ValueKey('game-operation-${op.name}'),
-                            piece: _GamePiece.operation(op, _opLabel(op)),
-                            style: _TileStyle.operation,
+                            tileKey: const ValueKey('game-open-parenthesis'),
+                            piece: const _GamePiece.leftParenthesis(),
+                            style: _TileStyle.parenthesis,
+                            delay: (opIndex++) * 30,
                           ),
-                      paletteTile(
-                        tileKey: const ValueKey('game-open-parenthesis'),
-                        piece: const _GamePiece.leftParenthesis(),
-                        style: _TileStyle.parenthesis,
-                      ),
-                      paletteTile(
-                        tileKey: const ValueKey('game-close-parenthesis'),
-                        piece: const _GamePiece.rightParenthesis(),
-                        style: _TileStyle.parenthesis,
-                      ),
-                      // O '=' já vem posicionado no tabuleiro; a peça só
-                      // aparece na paleta se ele não estiver lá.
-                      if (!game.tokens.contains('='))
-                        paletteTile(
-                          tileKey: const ValueKey('game-equality'),
-                          piece: const _GamePiece.equality(),
-                          style: _TileStyle.equality,
-                        ),
-                    ],
+                          paletteTile(
+                            tileKey: const ValueKey('game-close-parenthesis'),
+                            piece: const _GamePiece.rightParenthesis(),
+                            style: _TileStyle.parenthesis,
+                            delay: (opIndex++) * 30,
+                          ),
+                          // O '=' já vem posicionado no tabuleiro; a peça só
+                          // aparece na paleta se ele não estiver lá.
+                          if (!game.tokens.contains('='))
+                            paletteTile(
+                              tileKey: const ValueKey('game-equality'),
+                              piece: const _GamePiece.equality(),
+                              style: _TileStyle.equality,
+                              delay: (opIndex++) * 30,
+                            ),
+                        ],
+                      );
+                    },
                   ),
 
                   SizedBox(height: gap * 1.2),
@@ -338,6 +364,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                         label: l10n.gameClear,
                         enabled: !game.solved && hasContent,
                         onPressed: () {
+                          _animateReturn();
                           controller.clearExpression();
                           soundService.playControl(enabled: soundEnabled);
                         },
@@ -354,6 +381,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                         filled: true,
                         onPressed: game.solved
                             ? () {
+                                _animateReturn();
                                 controller.nextChallenge();
                                 soundService.playPrimaryAction(
                                   enabled: soundEnabled,
@@ -365,6 +393,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                                   soundService.playSuccess(
                                     enabled: soundEnabled,
                                   );
+                                  _animateReturn();
                                 } else {
                                   soundService.playWarning(
                                     enabled: soundEnabled,
@@ -763,7 +792,6 @@ class _TileFace extends StatelessWidget {
 
 class _DraggableTile extends StatelessWidget {
   const _DraggableTile({
-    super.key,
     required this.piece,
     required this.style,
     required this.metrics,
@@ -823,6 +851,101 @@ class _DraggableTile extends StatelessWidget {
         ),
       ),
       child: MouseRegion(cursor: SystemMouseCursors.grab, child: face),
+    );
+  }
+}
+
+// ─── Animação de Retorno das Peças à Paleta ──────────────────────────────────
+
+/// Anima a volta das peças para a paleta com um efeito de deslize e escala suave
+/// (como sugerido no enunciado do trabalho: "os operadores voltam aos seus
+/// lugares após a finalização de uma escolha").
+class _AnimatedReturnTile extends StatefulWidget {
+  const _AnimatedReturnTile({
+    super.key,
+    required this.returnTick,
+    this.delay = 0,
+    required this.child,
+  });
+
+  final int returnTick;
+  final int delay;
+  final Widget child;
+
+  @override
+  State<_AnimatedReturnTile> createState() => _AnimatedReturnTileState();
+}
+
+class _AnimatedReturnTileState extends State<_AnimatedReturnTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 360),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -0.4),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.7,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+    // Começa já na posição final de descanso (sem animação no primeiro build).
+    _controller.value = 1.0;
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedReturnTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.returnTick != oldWidget.returnTick && widget.returnTick > 0) {
+      _triggerAnimation();
+    }
+  }
+
+  void _triggerAnimation() {
+    _controller.reset();
+    if (widget.delay > 0) {
+      Future.delayed(Duration(milliseconds: widget.delay), () {
+        if (mounted) {
+          _controller.forward();
+        }
+      });
+    } else {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: widget.child,
+      ),
     );
   }
 }
