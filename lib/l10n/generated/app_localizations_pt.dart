@@ -411,6 +411,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get accountSignOut => 'Sair';
+
+  @override
+  String get progressLoadError => 'Erro ao carregar';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

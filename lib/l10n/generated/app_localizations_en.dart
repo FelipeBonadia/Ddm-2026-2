@@ -410,4 +410,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountSignOut => 'Sign out';
+
+  @override
+  String get progressLoadError => 'Error Loading';
 }

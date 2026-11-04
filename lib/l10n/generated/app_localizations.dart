@@ -836,6 +836,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Sair'**
   String get accountSignOut;
+
+  /// No description provided for @progressLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao carregar'**
+  String get progressLoadError;
 }
 
 class _AppLocalizationsDelegate

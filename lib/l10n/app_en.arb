@@ -153,5 +153,6 @@
   "themeModeLight": "Light",
   "themeModeDark": "Dark",
   "themeModeSystem": "System",
-  "accountSignOut": "Sign out"
+  "accountSignOut": "Sign out",
+  "progressLoadError": "Error Loading"
 }

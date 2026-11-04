@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../providers/auth_providers.dart';
 import '../../game/domain/game_engine.dart';
 
 final progressTrackerProvider =
@@ -31,6 +36,41 @@ class ProgressEntry {
   final String rightSide;
   final GameDifficulty difficulty;
   final DateTime solvedAt;
+
+  Map<String, dynamic> toMap() => {
+    'leftSide': leftSide,
+    'rightSide': rightSide,
+    // Salva o `name` do enum, nunca o índice: reordenar o enum não corrompe
+    // dados antigos.
+    'difficulty': difficulty.name,
+    'solvedAt': Timestamp.fromDate(solvedAt),
+  };
+
+  /// Retorna null se o documento estiver malformado (em vez de derrubar a
+  /// tela inteira por causa de um registro ruim).
+  static ProgressEntry? tryFromMap(Map<String, dynamic> map) {
+    final left = map['leftSide'];
+    final right = map['rightSide'];
+    final solvedAt = map['solvedAt'];
+    if (left is! String || right is! String || solvedAt is! Timestamp) {
+      return null;
+    }
+    return ProgressEntry(
+      leftSide: left,
+      rightSide: right,
+      difficulty: _difficultyFromName(map['difficulty']),
+      solvedAt: solvedAt.toDate(),
+    );
+  }
+
+  /// Nomes desconhecidos (ex.: "medium" de versões antigas) viram
+  /// `intermediate`.
+  static GameDifficulty _difficultyFromName(Object? name) {
+    for (final value in GameDifficulty.values) {
+      if (value.name == name) return value;
+    }
+    return GameDifficulty.intermediate;
+  }
 }
 
 class ProgressState {
@@ -39,7 +79,44 @@ class ProgressState {
     this.currentStreakDays = 0,
     this.bestStreakDays = 0,
     this.lastSolvedDay,
+    this.isLoading = false,
+    this.hasError = false,
   });
+
+  /// Monta o estado a partir dos desafios salvos no Firestore. Sequências e
+  /// pontuação são sempre DERIVADAS dos registros, então não existe número
+  /// guardado que possa ficar fora de sincronia com o histórico.
+  factory ProgressState.fromEntries(List<ProgressEntry> entries) {
+    final sorted = [...entries]
+      ..sort((a, b) => b.solvedAt.compareTo(a.solvedAt));
+    if (sorted.isEmpty) return const ProgressState();
+
+    // Dias distintos (calendário local), do mais antigo ao mais recente.
+    final days = {
+      for (final e in sorted)
+        DateTime(e.solvedAt.year, e.solvedAt.month, e.solvedAt.day),
+    }.toList()..sort();
+
+    var best = 1;
+    var run = 1;
+    for (var i = 1; i < days.length; i++) {
+      run = _calendarDaysBetween(days[i - 1], days[i]) == 1 ? run + 1 : 1;
+      if (run > best) best = run;
+    }
+
+    return ProgressState(
+      entries: List.unmodifiable(sorted),
+      currentStreakDays: run, // sequência que termina no último dia jogado
+      bestStreakDays: best,
+      lastSolvedDay: days.last,
+    );
+  }
+
+  /// true até o primeiro snapshot do Firestore chegar.
+  final bool isLoading;
+
+  /// true se o stream do Firestore falhou (ex.: regras de segurança).
+  final bool hasError;
 
   /// Mais recente primeiro.
   final List<ProgressEntry> entries;
@@ -82,73 +159,76 @@ class ProgressState {
     int? currentStreakDays,
     int? bestStreakDays,
     DateTime? lastSolvedDay,
+    bool? isLoading,
+    bool? hasError,
   }) => ProgressState(
     entries: entries ?? this.entries,
     currentStreakDays: currentStreakDays ?? this.currentStreakDays,
     bestStreakDays: bestStreakDays ?? this.bestStreakDays,
     lastSolvedDay: lastSolvedDay ?? this.lastSolvedDay,
+    isLoading: isLoading ?? this.isLoading,
+    hasError: hasError ?? this.hasError,
   );
 }
 
 class ProgressTrackerController extends Notifier<ProgressState> {
-  @override
-  ProgressState build() => const ProgressState();
+  String? _uid;
 
-  // NOTA SOBRE PERSISTÊNCIA: isso vive só na memória do app — fechou o app,
-  // zera. Para manter entre sessões, dá pra serializar `entries` com
-  // shared_preferences, hive, drift etc. Ao serializar a dificuldade, salve
-  // `difficulty.name` e trate nomes desconhecidos (ex.: "medium" de versões
-  // antigas) mapeando para `intermediate`.
+  @override
+  ProgressState build() {
+    // Reconstrói (e troca a assinatura do Firestore) quando o usuário muda:
+    // logout/login não herda o progresso de outra conta.
+    final uid = ref.watch(currentUserProvider.select((user) => user?.uid));
+    _uid = uid;
+    if (uid == null) return const ProgressState();
+
+    final subscription = ref
+        .watch(firestoreServiceProvider)
+        .watchProgressEntries(uid)
+        .listen(
+          (docs) {
+            final entries = [
+              for (final doc in docs) ?ProgressEntry.tryFromMap(doc),
+            ];
+            state = ProgressState.fromEntries(entries);
+          },
+          onError: (Object error, StackTrace stack) {
+            debugPrint('Erro ao carregar progresso: $error');
+            state = state.copyWith(isLoading: false, hasError: true);
+          },
+        );
+    ref.onDispose(subscription.cancel);
+
+    return const ProgressState(isLoading: true);
+  }
 
   /// Chamado quando o jogador resolve um desafio corretamente. `leftSide` e
   /// `rightSide` são os dois lados da igualdade já montada pelo jogador.
+  ///
+  /// Só grava no Firestore; o estado da tela é atualizado pelo stream (o
+  /// Firestore emite imediatamente a escrita local, mesmo offline).
   void recordSolved({
     required String leftSide,
     required String rightSide,
     required GameDifficulty difficulty,
   }) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final uid = _uid;
+    if (uid == null) return; // sem usuário logado não há onde gravar
 
     final entry = ProgressEntry(
       leftSide: leftSide,
       rightSide: rightSide,
       difficulty: difficulty,
-      solvedAt: now,
+      solvedAt: DateTime.now(),
     );
 
-    final streak = _nextStreak(today);
-
-    state = state.copyWith(
-      entries: [entry, ...state.entries],
-      currentStreakDays: streak.current,
-      bestStreakDays: streak.best,
-      lastSolvedDay: today,
+    unawaited(
+      ref
+          .read(firestoreServiceProvider)
+          .addProgressEntry(uid, entry.toMap())
+          .catchError((Object error) {
+            debugPrint('Erro ao salvar progresso: $error');
+          }),
     );
-  }
-
-  /// Sequência de dias consecutivos com pelo menos um acerto.
-  /// - Mesmo dia do último acerto → não conta de novo.
-  /// - Dia seguinte → sequência continua.
-  /// - Qualquer intervalo maior → sequência reinicia em 1.
-  ({int current, int best}) _nextStreak(DateTime today) {
-    final lastDay = state.lastSolvedDay;
-    final int current;
-    if (lastDay == null) {
-      current = 1;
-    } else {
-      final daysSince = _calendarDaysBetween(lastDay, today);
-      if (daysSince == 0) {
-        current = state.currentStreakDays == 0 ? 1 : state.currentStreakDays;
-      } else if (daysSince == 1) {
-        current = state.currentStreakDays + 1;
-      } else {
-        current = 1;
-      }
-    }
-    final best = current > state.bestStreakDays
-        ? current
-        : state.bestStreakDays;
-    return (current: current, best: best);
   }
 }

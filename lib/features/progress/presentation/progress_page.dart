@@ -4,6 +4,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../widgets/app_loading_indicator.dart';
 import '../../game/domain/game_engine.dart';
 import '../../shared/presentation/feature_frame.dart';
 import '../presentation/progress_tracker.dart';
@@ -58,7 +59,17 @@ class ProgressPage extends ConsumerWidget {
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          if (progress.entries.isEmpty)
+          if (progress.isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: AppLoadingIndicator(),
+            )
+          else if (progress.hasError && progress.entries.isEmpty)
+            _EmptyHistory(
+              title: l10n.progressEmptyTitle,
+              hint: l10n.progressLoadError,
+            )
+          else if (progress.entries.isEmpty)
             _EmptyHistory(
               title: l10n.progressEmptyTitle,
               hint: l10n.progressEmptyHint,

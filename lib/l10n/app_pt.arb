@@ -153,5 +153,6 @@
   "themeModeLight": "Claro",
   "themeModeDark": "Escuro",
   "themeModeSystem": "Sistema",
-  "accountSignOut": "Sair"
+  "accountSignOut": "Sair",
+  "progressLoadError": "Erro ao carregar"
 }
