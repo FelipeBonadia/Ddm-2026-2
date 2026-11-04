@@ -152,5 +152,6 @@
   "systemStatus": "Sistema",
   "themeModeLight": "Claro",
   "themeModeDark": "Escuro",
-  "themeModeSystem": "Sistema"
+  "themeModeSystem": "Sistema",
+  "accountSignOut": "Sair"
 }

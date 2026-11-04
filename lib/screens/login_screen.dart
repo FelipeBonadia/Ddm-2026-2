@@ -1,5 +1,5 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,79 +20,72 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(appLocaleProvider);
 
-    return Localizations(
-      locale: locale,
-      delegates: [
-        ...FirebaseUILocalizations.delegates,
+    return SignInScreen(
+      providers: [
+        EmailAuthProvider(),
+        GoogleProvider(
+          clientId: 'REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com',
+        ),
       ],
-      child: SignInScreen(
-        providers: [
-          EmailAuthProvider(),
-          GoogleProvider(
-            clientId:
-                'REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com',
+      headerMaxExtent: 260,
+      headerBuilder: (context, constraints, shrinkOffset) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.calculate, size: 64, color: Colors.deepPurple),
+              const SizedBox(height: 12),
+              Text(
+                AppConstants.appName,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              for (final name in _members)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(name, style: const TextStyle(fontSize: 14)),
+                ),
+            ],
           ),
-        ],
-        headerMaxExtent: 260,
-        headerBuilder: (context, constraints, shrinkOffset) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.calculate,
-                    size: 64, color: Colors.deepPurple),
-                const SizedBox(height: 12),
-                Text(
-                  AppConstants.appName,
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                for (final name in _members)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text(name,
-                        style: const TextStyle(fontSize: 14)),
-                  ),
-              ],
-            ),
-          );
-        },
-        footerBuilder: (context, _) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _LanguageFlag(
-                  flag: '🇧🇷',
-                  label: 'Português',
-                  selected: locale.languageCode == 'pt',
-                  onTap: () => ref
-                      .read(interfacePreferencesProvider.notifier)
-                      .setLocale(const Locale('pt', 'BR')),
-                ),
-                const SizedBox(width: 16),
-                _LanguageFlag(
-                  flag: '🇺🇸',
-                  label: 'English',
-                  selected: locale.languageCode == 'en',
-                  onTap: () => ref
-                      .read(interfacePreferencesProvider.notifier)
-                      .setLocale(const Locale('en')),
-                ),
-              ],
-            ),
-          );
-        },
-        actions: [
-          AuthStateChangeAction<SignedIn>((context, state) {
-            context.go(AppRoutes.home);
-          }),
-        ],
-      ),
+        );
+      },
+      footerBuilder: (context, _) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _LanguageFlag(
+                flag: '🇧🇷',
+                label: 'Português',
+                selected: locale.languageCode == 'pt',
+                onTap: () => ref
+                    .read(interfacePreferencesProvider.notifier)
+                    .setLocale(const Locale('pt', 'BR')),
+              ),
+              const SizedBox(width: 16),
+              _LanguageFlag(
+                flag: '🇺🇸',
+                label: 'English',
+                selected: locale.languageCode == 'en',
+                onTap: () => ref
+                    .read(interfacePreferencesProvider.notifier)
+                    .setLocale(const Locale('en')),
+              ),
+            ],
+          ),
+        );
+      },
+      actions: [
+        AuthStateChangeAction<SignedIn>((context, state) {
+          context.go(AppRoutes.home);
+        }),
+      ],
     );
   }
 }

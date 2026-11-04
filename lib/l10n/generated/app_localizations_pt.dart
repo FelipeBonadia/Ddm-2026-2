@@ -408,6 +408,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get themeModeSystem => 'Sistema';
+
+  @override
+  String get accountSignOut => 'Sair';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

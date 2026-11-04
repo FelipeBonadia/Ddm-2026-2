@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1071664988916",
+    "project_id": "math-puzzle-app-13e47",
+    "storage_bucket": "math-puzzle-app-13e47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071664988916:android:8a7e8d31df11acb6f2d4a1",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoMIvWIyMeS-UdDRNXYbvkUcRtWREaaEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

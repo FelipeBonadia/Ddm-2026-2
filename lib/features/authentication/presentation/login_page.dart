@@ -1,13 +1,35 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
 
+/// Web client ID do Google: Firebase Console → Authentication → Sign-in
+/// method → Google → "Web SDK configuration" → Web client ID.
+/// Também pode ser passado na execução:
+/// --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+const _googleClientId = String.fromEnvironment(
+  'GOOGLE_CLIENT_ID',
+  defaultValue: 'REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com',
+);
+
+/// Integrantes do grupo (nomes próprios, não são traduzidos).
+const _teamMembers = <String>['Rick Robert Tomaz Rezende', 'Felipe Bonadia'];
+
+const _portugueseLocale = Locale('pt', 'BR');
+const _englishLocale = Locale('en');
+
+/// Página de login com o visual do app, usando o firebase_ui_auth para a
+/// autenticação:
+/// - Google: `OAuthProviderButton` + `GoogleProvider`.
+/// - E-mail e senha: `SignInScreen` com `EmailAuthProvider` (já traz criar
+///   conta, "esqueci a senha" e as mensagens de erro, traduzidas pelo
+///   `FirebaseUILocalizations`).
+/// Depois de entrar, o `authStateChanges` dispara o redirect do GoRouter.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -16,17 +38,60 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  final _googleProvider = GoogleProvider(clientId: _googleClientId);
+
   void _playSelection() {
     final enabled = ref.read(soundEnabledProvider);
     ref.read(appSoundServiceProvider).playSelection(enabled: enabled);
   }
 
-  void _showUnavailableMessage() {
-    final enabled = ref.read(soundEnabledProvider);
-    ref.read(appSoundServiceProvider).playWarning(enabled: enabled);
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.loginUnavailable)));
+  void _openEmailSignIn() {
+    _playSelection();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (routeContext) {
+          final l10n = AppLocalizations.of(routeContext)!;
+          // O SignInScreen não tem barra superior nem botão de voltar, então
+          // sobrepomos um botão "voltar" no canto, que fecha esta tela e
+          // devolve o usuário à página de login do app.
+          return Material(
+            color: Colors.transparent,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                SignInScreen(
+                  providers: [EmailAuthProvider()],
+                  actions: [
+                    // Entrou ou criou conta: fecha a tela do firebase_ui_auth;
+                    // o GoRouter troca a página de login pela home/última
+                    // página.
+                    AuthStateChangeAction<SignedIn>((context, state) {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    }),
+                    AuthStateChangeAction<UserCreated>((context, state) {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    }),
+                  ],
+                ),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: IconButton.filledTonal(
+                        tooltip: l10n.loginBack,
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        onPressed: () => Navigator.of(routeContext).pop(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -36,6 +101,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 820;
+
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -74,6 +140,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       interfacePreferencesProvider.select((value) => value.locale),
     );
     final controller = ref.read(interfacePreferencesProvider.notifier);
+    // Compara só o idioma: um Locale('pt') salvo não coincide com
+    // Locale('pt', 'BR') e deixaria o SegmentedButton sem seleção (erro).
+    final selectedLocale = locale.languageCode == 'pt'
+        ? _portugueseLocale
+        : _englishLocale;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,19 +180,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
         ),
         const SizedBox(height: 24),
+        // Google (firebase_ui_oauth_google). O texto do botão vem do
+        // FirebaseUILocalizations.
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: _showUnavailableMessage,
-            icon: const Icon(Icons.account_circle_outlined),
-            label: Text(l10n.loginGoogle),
-          ),
+          child: OAuthProviderButton(provider: _googleProvider),
         ),
         const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: _showUnavailableMessage,
+            onPressed: _openEmailSignIn,
             icon: const Icon(Icons.mail_outline_rounded),
             label: Text(l10n.loginEmail),
           ),
@@ -141,15 +210,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           showSelectedIcon: false,
           segments: [
             ButtonSegment<Locale>(
-              value: Locale('pt', 'BR'),
+              value: _portugueseLocale,
               label: Text(l10n.localePortuguese),
             ),
             ButtonSegment<Locale>(
-              value: Locale('en'),
+              value: _englishLocale,
               label: Text(l10n.localeEnglish),
             ),
           ],
-          selected: {locale},
+          selected: {selectedLocale},
           onSelectionChanged: (selection) {
             if (selection.isNotEmpty) {
               _playSelection();
@@ -158,16 +227,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           },
         ),
         if (showTeam) ...[const SizedBox(height: 20), const _TeamPanel()],
-        const SizedBox(height: 20),
-        TextButton.icon(
-          onPressed: () {
-            final enabled = ref.read(soundEnabledProvider);
-            ref.read(appSoundServiceProvider).playBack(enabled: enabled);
-            context.go(AppRoutes.home);
-          },
-          icon: const Icon(Icons.arrow_back_rounded),
-          label: Text(l10n.loginBack),
-        ),
+        // Sem botão "voltar ao início": sem login não há acesso à home (o
+        // redirect do GoRouter mandaria de volta para esta página).
       ],
     );
   }
@@ -274,13 +335,18 @@ class _TeamPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            l10n.loginTeamNames,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
+          // Nomes reais do grupo (antes mostrava "Integrante 1 · Integrante 2").
+          for (final name in _teamMembers)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: Text(
+                name,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -293,6 +359,7 @@ class _NumberMotif extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Wrap(
     spacing: 9,
+    runSpacing: 9,
     children: [
       _MotifTile('3', AppColors.violet),
       _MotifTile('＋', AppColors.cyan),

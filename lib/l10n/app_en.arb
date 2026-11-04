@@ -152,5 +152,6 @@
   "systemStatus": "System",
   "themeModeLight": "Light",
   "themeModeDark": "Dark",
-  "themeModeSystem": "System"
+  "themeModeSystem": "System",
+  "accountSignOut": "Sign out"
 }

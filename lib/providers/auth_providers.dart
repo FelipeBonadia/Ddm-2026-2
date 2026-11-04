@@ -9,15 +9,16 @@ import '../services/firestore_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
-final firestoreServiceProvider =
-    Provider<FirestoreService>((ref) => FirestoreService());
+final firestoreServiceProvider = Provider<FirestoreService>(
+  (ref) => FirestoreService(),
+);
 
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServiceProvider).authStateChanges;
 });
 
 final currentUserProvider = Provider<User?>((ref) {
-  return ref.watch(authStateProvider).valueOrNull ??
+  return ref.watch(authStateProvider).value ??
       ref.watch(authServiceProvider).currentUser;
 });
 
@@ -49,8 +50,9 @@ class LastRouteNotifier extends Notifier<String?> {
   }
 }
 
-final lastRouteProvider =
-    NotifierProvider<LastRouteNotifier, String?>(LastRouteNotifier.new);
+final lastRouteProvider = NotifierProvider<LastRouteNotifier, String?>(
+  LastRouteNotifier.new,
+);
 
 class PendingNumberNotifier extends Notifier<int?> {
   @override
@@ -61,5 +63,6 @@ class PendingNumberNotifier extends Notifier<int?> {
   void skip() => state = null;
 }
 
-final pendingNumberProvider =
-    NotifierProvider<PendingNumberNotifier, int?>(PendingNumberNotifier.new);
+final pendingNumberProvider = NotifierProvider<PendingNumberNotifier, int?>(
+  PendingNumberNotifier.new,
+);

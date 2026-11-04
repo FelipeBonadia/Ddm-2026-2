@@ -407,4 +407,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeModeSystem => 'System';
+
+  @override
+  String get accountSignOut => 'Sign out';
 }

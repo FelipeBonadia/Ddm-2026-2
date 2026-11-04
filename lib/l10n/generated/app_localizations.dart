@@ -830,6 +830,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Sistema'**
   String get themeModeSystem;
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair'**
+  String get accountSignOut;
 }
 
 class _AppLocalizationsDelegate

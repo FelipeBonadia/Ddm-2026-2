@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart' show FirebaseUIAuth;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,13 +68,48 @@ class HomePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  IconButton(
+                  // Menu da conta: mostra quem está logado e permite sair.
+                  // (Antes ia para /login, mas com o usuário logado o
+                  // redirect do roteador voltava para a home.)
+                  PopupMenuButton<String>(
                     tooltip: l10n.homeAccessAccount,
-                    onPressed: () {
-                      playNavigation();
-                      context.go(AppRoutes.login);
-                    },
                     icon: const Icon(Icons.person_outline_rounded),
+                    onOpened: playNavigation,
+                    onSelected: (_) {
+                      // Zera o estado em memória de quem está saindo, para o
+                      // próximo login não herdar o progresso e o desafio
+                      // atual.
+                      ref.invalidate(gameSessionProvider);
+                      ref.invalidate(progressTrackerProvider);
+                      // Sai do Firebase (e do Google); o redirect do
+                      // roteador leva para a página de login.
+                      FirebaseUIAuth.signOut(context: context);
+                    },
+                    itemBuilder: (context) {
+                      final user = FirebaseAuth.instance.currentUser;
+                      final who = (user?.displayName?.isNotEmpty ?? false)
+                          ? user!.displayName!
+                          : (user?.email ?? '');
+                      return [
+                        if (who.isNotEmpty) ...[
+                          PopupMenuItem<String>(
+                            enabled: false,
+                            child: Text(who, overflow: TextOverflow.ellipsis),
+                          ),
+                          const PopupMenuDivider(),
+                        ],
+                        PopupMenuItem<String>(
+                          value: 'signOut',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.logout_rounded, size: 20),
+                              const SizedBox(width: 12),
+                              Text(l10n.accountSignOut),
+                            ],
+                          ),
+                        ),
+                      ];
+                    },
                   ),
                 ],
               ),
