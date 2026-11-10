@@ -361,11 +361,13 @@ class _NumberMotif extends StatelessWidget {
     spacing: 9,
     runSpacing: 9,
     children: [
-      _MotifTile('3', AppColors.violet),
-      _MotifTile('＋', AppColors.cyan),
-      _MotifTile('6', AppColors.success),
+      _MotifTile('4', AppColors.violet),
+      _MotifTile('*', AppColors.cyan),
+      _MotifTile('2', AppColors.success),
       _MotifTile('＝', AppColors.violetBright),
-      _MotifTile('24', AppColors.cyan),
+      _MotifTile('5', AppColors.violet),
+      _MotifTile('+', AppColors.cyan),
+      _MotifTile('3', AppColors.success),
     ],
   );
 }
