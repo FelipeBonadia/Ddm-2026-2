@@ -842,6 +842,264 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Erro ao carregar'**
   String get progressLoadError;
+
+  /// No description provided for @authBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar'**
+  String get authBack;
+
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar com e-mail'**
+  String get authSignInTitle;
+
+  /// No description provided for @authSignUpTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar sua conta'**
+  String get authSignUpTitle;
+
+  /// No description provided for @authSignInSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite seu e-mail e sua senha para entrar.'**
+  String get authSignInSubtitle;
+
+  /// No description provided for @authSignUpSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preencha os dados abaixo para criar sua conta.'**
+  String get authSignUpSubtitle;
+
+  /// No description provided for @authTabSignIn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar'**
+  String get authTabSignIn;
+
+  /// No description provided for @authTabSignUp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar conta'**
+  String get authTabSignUp;
+
+  /// No description provided for @authEmailLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'E-mail'**
+  String get authEmailLabel;
+
+  /// No description provided for @authEmailHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'nome@exemplo.com'**
+  String get authEmailHint;
+
+  /// No description provided for @authPasswordLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Senha'**
+  String get authPasswordLabel;
+
+  /// No description provided for @authConfirmPasswordLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmar senha'**
+  String get authConfirmPasswordLabel;
+
+  /// No description provided for @authPasswordRule.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mínimo de 6 caracteres'**
+  String get authPasswordRule;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostrar senha'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocultar senha'**
+  String get authHidePassword;
+
+  /// No description provided for @authSignInButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar'**
+  String get authSignInButton;
+
+  /// No description provided for @authSignUpButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar conta'**
+  String get authSignUpButton;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não tem conta? Criar conta'**
+  String get authNoAccount;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esqueci minha senha'**
+  String get authForgotPassword;
+
+  /// No description provided for @authResetTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Redefinir senha'**
+  String get authResetTitle;
+
+  /// No description provided for @authResetBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe seu e-mail e enviaremos um link para você criar uma nova senha.'**
+  String get authResetBody;
+
+  /// No description provided for @authResetSend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar link'**
+  String get authResetSend;
+
+  /// No description provided for @authResetSent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Link enviado! Verifique sua caixa de entrada e o spam.'**
+  String get authResetSent;
+
+  /// No description provided for @authCancel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get authCancel;
+
+  /// No description provided for @authAccountCreatedTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta criada com sucesso!'**
+  String get authAccountCreatedTitle;
+
+  /// No description provided for @authAccountCreatedBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua conta está pronta. Agora entre com seu e-mail e sua senha.'**
+  String get authAccountCreatedBody;
+
+  /// No description provided for @authAccountCreatedAction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ir para o login'**
+  String get authAccountCreatedAction;
+
+  /// No description provided for @authAccountCreatedNotice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta criada! Digite sua senha para entrar.'**
+  String get authAccountCreatedNotice;
+
+  /// No description provided for @authEmailRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe seu e-mail.'**
+  String get authEmailRequired;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite um e-mail válido, como nome@exemplo.com.'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe sua senha.'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authPasswordTooShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'A senha precisa ter pelo menos 6 caracteres.'**
+  String get authPasswordTooShort;
+
+  /// No description provided for @authConfirmRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Repita a senha para confirmar.'**
+  String get authConfirmRequired;
+
+  /// No description provided for @authPasswordsMismatch.
+  ///
+  /// In pt, this message translates to:
+  /// **'As senhas não coincidem.'**
+  String get authPasswordsMismatch;
+
+  /// No description provided for @authErrorInvalidCredentials.
+  ///
+  /// In pt, this message translates to:
+  /// **'E-mail ou senha incorretos. Confira os dados e tente novamente.'**
+  String get authErrorInvalidCredentials;
+
+  /// No description provided for @authErrorUserNotFound.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não encontramos uma conta com este e-mail. Que tal criar uma?'**
+  String get authErrorUserNotFound;
+
+  /// No description provided for @authErrorEmailInUse.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este e-mail já está cadastrado. Tente entrar com ele.'**
+  String get authErrorEmailInUse;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Senha muito fraca. Use pelo menos 6 caracteres.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authErrorTooManyRequests.
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitas tentativas. Aguarde alguns minutos e tente novamente.'**
+  String get authErrorTooManyRequests;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem conexão com a internet. Verifique sua rede e tente de novo.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorUserDisabled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta conta foi desativada.'**
+  String get authErrorUserDisabled;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In pt, this message translates to:
+  /// **'Algo deu errado. Tente novamente em instantes.'**
+  String get authErrorGeneric;
+
+  /// No description provided for @accountSignOutConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair da conta?'**
+  String get accountSignOutConfirmTitle;
+
+  /// No description provided for @accountSignOutConfirmBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você precisará entrar novamente para continuar jogando.'**
+  String get accountSignOutConfirmBody;
 }
 
 class _AppLocalizationsDelegate

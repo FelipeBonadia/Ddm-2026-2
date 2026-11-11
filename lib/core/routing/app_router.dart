@@ -20,6 +20,14 @@ abstract final class AppRoutes {
   static const login = '/login';
 }
 
+/// Quando `true`, o redirect abaixo não mexe na navegação.
+///
+/// Criar uma conta no Firebase já deixa o usuário logado. Na tela de
+/// cadastro queremos mostrar o pop-up de sucesso e voltar para o login (e
+/// não cair direto na home), então a tela pausa o redirect enquanto cria a
+/// conta, mostra o aviso e faz o signOut.
+final ValueNotifier<bool> authRedirectPaused = ValueNotifier<bool>(false);
+
 const _lastRouteKey = 'last_route';
 String? _cachedInitialRoute;
 
@@ -68,10 +76,12 @@ class _RoutePersistenceObserver extends NavigatorObserver {
 GoRouter createAppRouter() {
   return GoRouter(
     initialLocation: _cachedInitialRoute ?? AppRoutes.home,
-    refreshListenable:
-        _RouterRefreshNotifier(FirebaseAuth.instance.authStateChanges()),
+    refreshListenable: _RouterRefreshNotifier(
+      FirebaseAuth.instance.authStateChanges(),
+    ),
     observers: [_RoutePersistenceObserver()],
     redirect: (context, state) {
+      if (authRedirectPaused.value) return null;
       final user = FirebaseAuth.instance.currentUser;
       final atLogin = state.matchedLocation == AppRoutes.login;
       if (user == null) return atLogin ? null : AppRoutes.login;

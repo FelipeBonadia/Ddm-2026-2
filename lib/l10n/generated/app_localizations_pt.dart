@@ -414,6 +414,150 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get progressLoadError => 'Erro ao carregar';
+
+  @override
+  String get authBack => 'Voltar';
+
+  @override
+  String get authSignInTitle => 'Entrar com e-mail';
+
+  @override
+  String get authSignUpTitle => 'Criar sua conta';
+
+  @override
+  String get authSignInSubtitle => 'Digite seu e-mail e sua senha para entrar.';
+
+  @override
+  String get authSignUpSubtitle =>
+      'Preencha os dados abaixo para criar sua conta.';
+
+  @override
+  String get authTabSignIn => 'Entrar';
+
+  @override
+  String get authTabSignUp => 'Criar conta';
+
+  @override
+  String get authEmailLabel => 'E-mail';
+
+  @override
+  String get authEmailHint => 'nome@exemplo.com';
+
+  @override
+  String get authPasswordLabel => 'Senha';
+
+  @override
+  String get authConfirmPasswordLabel => 'Confirmar senha';
+
+  @override
+  String get authPasswordRule => 'Mínimo de 6 caracteres';
+
+  @override
+  String get authShowPassword => 'Mostrar senha';
+
+  @override
+  String get authHidePassword => 'Ocultar senha';
+
+  @override
+  String get authSignInButton => 'Entrar';
+
+  @override
+  String get authSignUpButton => 'Criar conta';
+
+  @override
+  String get authNoAccount => 'Não tem conta? Criar conta';
+
+  @override
+  String get authForgotPassword => 'Esqueci minha senha';
+
+  @override
+  String get authResetTitle => 'Redefinir senha';
+
+  @override
+  String get authResetBody =>
+      'Informe seu e-mail e enviaremos um link para você criar uma nova senha.';
+
+  @override
+  String get authResetSend => 'Enviar link';
+
+  @override
+  String get authResetSent =>
+      'Link enviado! Verifique sua caixa de entrada e o spam.';
+
+  @override
+  String get authCancel => 'Cancelar';
+
+  @override
+  String get authAccountCreatedTitle => 'Conta criada com sucesso!';
+
+  @override
+  String get authAccountCreatedBody =>
+      'Sua conta está pronta. Agora entre com seu e-mail e sua senha.';
+
+  @override
+  String get authAccountCreatedAction => 'Ir para o login';
+
+  @override
+  String get authAccountCreatedNotice =>
+      'Conta criada! Digite sua senha para entrar.';
+
+  @override
+  String get authEmailRequired => 'Informe seu e-mail.';
+
+  @override
+  String get authEmailInvalid =>
+      'Digite um e-mail válido, como nome@exemplo.com.';
+
+  @override
+  String get authPasswordRequired => 'Informe sua senha.';
+
+  @override
+  String get authPasswordTooShort =>
+      'A senha precisa ter pelo menos 6 caracteres.';
+
+  @override
+  String get authConfirmRequired => 'Repita a senha para confirmar.';
+
+  @override
+  String get authPasswordsMismatch => 'As senhas não coincidem.';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'E-mail ou senha incorretos. Confira os dados e tente novamente.';
+
+  @override
+  String get authErrorUserNotFound =>
+      'Não encontramos uma conta com este e-mail. Que tal criar uma?';
+
+  @override
+  String get authErrorEmailInUse =>
+      'Este e-mail já está cadastrado. Tente entrar com ele.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'Senha muito fraca. Use pelo menos 6 caracteres.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+
+  @override
+  String get authErrorNetwork =>
+      'Sem conexão com a internet. Verifique sua rede e tente de novo.';
+
+  @override
+  String get authErrorUserDisabled => 'Esta conta foi desativada.';
+
+  @override
+  String get authErrorGeneric =>
+      'Algo deu errado. Tente novamente em instantes.';
+
+  @override
+  String get accountSignOutConfirmTitle => 'Sair da conta?';
+
+  @override
+  String get accountSignOutConfirmBody =>
+      'Você precisará entrar novamente para continuar jogando.';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

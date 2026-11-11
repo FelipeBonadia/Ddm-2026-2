@@ -413,4 +413,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressLoadError => 'Error Loading';
+
+  @override
+  String get authBack => 'Back';
+
+  @override
+  String get authSignInTitle => 'Sign in with email';
+
+  @override
+  String get authSignUpTitle => 'Create your account';
+
+  @override
+  String get authSignInSubtitle => 'Enter your email and password to sign in.';
+
+  @override
+  String get authSignUpSubtitle =>
+      'Fill in the details below to create your account.';
+
+  @override
+  String get authTabSignIn => 'Sign in';
+
+  @override
+  String get authTabSignUp => 'Create account';
+
+  @override
+  String get authEmailLabel => 'Email';
+
+  @override
+  String get authEmailHint => 'name@example.com';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authConfirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get authPasswordRule => 'At least 6 characters';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authSignInButton => 'Sign in';
+
+  @override
+  String get authSignUpButton => 'Create account';
+
+  @override
+  String get authNoAccount => 'No account yet? Create one';
+
+  @override
+  String get authForgotPassword => 'Forgot my password';
+
+  @override
+  String get authResetTitle => 'Reset password';
+
+  @override
+  String get authResetBody =>
+      'Enter your email and we will send you a link to create a new password.';
+
+  @override
+  String get authResetSend => 'Send link';
+
+  @override
+  String get authResetSent => 'Link sent! Check your inbox and spam folder.';
+
+  @override
+  String get authCancel => 'Cancel';
+
+  @override
+  String get authAccountCreatedTitle => 'Account created successfully!';
+
+  @override
+  String get authAccountCreatedBody =>
+      'Your account is ready. Now sign in with your email and password.';
+
+  @override
+  String get authAccountCreatedAction => 'Go to sign in';
+
+  @override
+  String get authAccountCreatedNotice =>
+      'Account created! Enter your password to sign in.';
+
+  @override
+  String get authEmailRequired => 'Enter your email.';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email, like name@example.com.';
+
+  @override
+  String get authPasswordRequired => 'Enter your password.';
+
+  @override
+  String get authPasswordTooShort =>
+      'The password must have at least 6 characters.';
+
+  @override
+  String get authConfirmRequired => 'Repeat the password to confirm.';
+
+  @override
+  String get authPasswordsMismatch => 'The passwords do not match.';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'Incorrect email or password. Check your details and try again.';
+
+  @override
+  String get authErrorUserNotFound =>
+      'We could not find an account with this email. Why not create one?';
+
+  @override
+  String get authErrorEmailInUse =>
+      'This email is already registered. Try signing in with it.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'Password too weak. Use at least 6 characters.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Too many attempts. Wait a few minutes and try again.';
+
+  @override
+  String get authErrorNetwork =>
+      'No internet connection. Check your network and try again.';
+
+  @override
+  String get authErrorUserDisabled => 'This account has been disabled.';
+
+  @override
+  String get authErrorGeneric =>
+      'Something went wrong. Please try again shortly.';
+
+  @override
+  String get accountSignOutConfirmTitle => 'Sign out?';
+
+  @override
+  String get accountSignOutConfirmBody =>
+      'You will need to sign in again to keep playing.';
 }

@@ -75,7 +75,29 @@ class HomePage extends ConsumerWidget {
                     tooltip: l10n.homeAccessAccount,
                     icon: const Icon(Icons.person_outline_rounded),
                     onOpened: playNavigation,
-                    onSelected: (_) {
+                    onSelected: (_) async {
+                      // Pede confirmação: sair sem querer obrigaria a entrar
+                      // de novo.
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(l10n.accountSignOutConfirmTitle),
+                          content: Text(l10n.accountSignOutConfirmBody),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              child: Text(l10n.authCancel),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
+                              child: Text(l10n.accountSignOut),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed != true || !context.mounted) return;
                       // Zera o estado em memória de quem está saindo, para o
                       // próximo login não herdar o progresso e o desafio
                       // atual.

@@ -7,6 +7,7 @@ import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
+import 'email_auth_page.dart';
 
 /// Web client ID do Google: Firebase Console → Authentication → Sign-in
 /// method → Google → "Web SDK configuration" → Web client ID.
@@ -26,9 +27,8 @@ const _englishLocale = Locale('en');
 /// Página de login com o visual do app, usando o firebase_ui_auth para a
 /// autenticação:
 /// - Google: `OAuthProviderButton` + `GoogleProvider`.
-/// - E-mail e senha: `SignInScreen` com `EmailAuthProvider` (já traz criar
-///   conta, "esqueci a senha" e as mensagens de erro, traduzidas pelo
-///   `FirebaseUILocalizations`).
+/// - E-mail e senha: `EmailAuthPage` (entrar, criar conta e "esqueci a
+///   senha", com a regra da senha à vista e mensagens de erro claras).
 /// Depois de entrar, o `authStateChanges` dispara o redirect do GoRouter.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -45,52 +45,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.read(appSoundServiceProvider).playSelection(enabled: enabled);
   }
 
-  void _openEmailSignIn() {
+  void _openEmailAuth({EmailAuthMode mode = EmailAuthMode.signIn}) {
     _playSelection();
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (routeContext) {
-          final l10n = AppLocalizations.of(routeContext)!;
-          // O SignInScreen não tem barra superior nem botão de voltar, então
-          // sobrepomos um botão "voltar" no canto, que fecha esta tela e
-          // devolve o usuário à página de login do app.
-          return Material(
-            color: Colors.transparent,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                SignInScreen(
-                  providers: [EmailAuthProvider()],
-                  actions: [
-                    // Entrou ou criou conta: fecha a tela do firebase_ui_auth;
-                    // o GoRouter troca a página de login pela home/última
-                    // página.
-                    AuthStateChangeAction<SignedIn>((context, state) {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    }),
-                    AuthStateChangeAction<UserCreated>((context, state) {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    }),
-                  ],
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton.filledTonal(
-                        tooltip: l10n.loginBack,
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        onPressed: () => Navigator.of(routeContext).pop(),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      MaterialPageRoute<void>(builder: (_) => EmailAuthPage(initialMode: mode)),
     );
   }
 
@@ -190,9 +148,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: _openEmailSignIn,
+            onPressed: () => _openEmailAuth(),
             icon: const Icon(Icons.mail_outline_rounded),
             label: Text(l10n.loginEmail),
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Atalho para quem ainda não tem conta (abre direto no cadastro).
+        SizedBox(
+          width: double.infinity,
+          child: TextButton(
+            onPressed: () => _openEmailAuth(mode: EmailAuthMode.signUp),
+            child: Text(l10n.authNoAccount),
           ),
         ),
         const SizedBox(height: 24),
@@ -206,16 +173,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ),
         const SizedBox(height: 8),
+        // Largura total + FittedBox: os dois segmentos dividem o espaço por
+        // igual e o texto (com a bandeira em emoji) nunca passa da caixa,
+        // mesmo se a fonte de emoji carregar depois da primeira medição.
         SegmentedButton<Locale>(
           showSelectedIcon: false,
+          expandedInsets: EdgeInsets.zero,
           segments: [
             ButtonSegment<Locale>(
               value: _portugueseLocale,
-              label: Text(l10n.localePortuguese),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  l10n.localePortuguese,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
             ),
             ButtonSegment<Locale>(
               value: _englishLocale,
-              label: Text(l10n.localeEnglish),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(l10n.localeEnglish, maxLines: 1, softWrap: false),
+              ),
             ),
           ],
           selected: {selectedLocale},

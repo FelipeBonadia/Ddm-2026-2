@@ -116,14 +116,29 @@ class SettingsPage extends ConsumerWidget {
                 const SizedBox(height: 8),
                 SegmentedButton<Locale>(
                   showSelectedIcon: false,
+                  expandedInsets: EdgeInsets.zero,
                   segments: [
                     ButtonSegment<Locale>(
                       value: Locale('pt', 'BR'),
-                      label: Text(l10n.localePortuguese),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          l10n.localePortuguese,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      ),
                     ),
                     ButtonSegment<Locale>(
                       value: Locale('en'),
-                      label: Text(l10n.localeEnglish),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          l10n.localeEnglish,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      ),
                     ),
                   ],
                   selected: {preferences.locale},
