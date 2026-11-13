@@ -335,7 +335,7 @@ class _NumberTile extends StatelessWidget {
     height: 52,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: AppColors.violetDark,//Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: Theme.of(context).colorScheme.onPrimary,
       borderRadius: BorderRadius.circular(14),
       border: Border.all(color: Theme.of(context).dividerColor),
     ),
