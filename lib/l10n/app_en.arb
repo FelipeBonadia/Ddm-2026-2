@@ -197,5 +197,14 @@
   "authErrorUserDisabled": "This account has been disabled.",
   "authErrorGeneric": "Something went wrong. Please try again shortly.",
   "accountSignOutConfirmTitle": "Sign out?",
-  "accountSignOutConfirmBody": "You will need to sign in again to keep playing."
+  "accountSignOutConfirmBody": "You will need to sign in again to keep playing.",
+  "settingsFontSmaller": "Decrease font size",
+  "settingsFontLarger": "Increase font size",
+  "settingsFontReset": "Reset to default size",
+  "settingsColorViolet": "Violet",
+  "settingsColorCyan": "Cyan",
+  "settingsColorGreen": "Green",
+  "settingsResetAppearance": "Restore default appearance",
+  "settingsResetDone": "Appearance restored.",
+  "settingsUndo": "Undo"
 }

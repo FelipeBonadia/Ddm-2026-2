@@ -558,6 +558,33 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get accountSignOutConfirmBody =>
       'Você precisará entrar novamente para continuar jogando.';
+
+  @override
+  String get settingsFontSmaller => 'Diminuir fonte';
+
+  @override
+  String get settingsFontLarger => 'Aumentar fonte';
+
+  @override
+  String get settingsFontReset => 'Restaurar tamanho padrão';
+
+  @override
+  String get settingsColorViolet => 'Violeta';
+
+  @override
+  String get settingsColorCyan => 'Ciano';
+
+  @override
+  String get settingsColorGreen => 'Verde';
+
+  @override
+  String get settingsResetAppearance => 'Restaurar aparência padrão';
+
+  @override
+  String get settingsResetDone => 'Aparência restaurada.';
+
+  @override
+  String get settingsUndo => 'Desfazer';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

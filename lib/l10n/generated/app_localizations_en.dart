@@ -555,4 +555,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accountSignOutConfirmBody =>
       'You will need to sign in again to keep playing.';
+
+  @override
+  String get settingsFontSmaller => 'Decrease font size';
+
+  @override
+  String get settingsFontLarger => 'Increase font size';
+
+  @override
+  String get settingsFontReset => 'Reset to default size';
+
+  @override
+  String get settingsColorViolet => 'Violet';
+
+  @override
+  String get settingsColorCyan => 'Cyan';
+
+  @override
+  String get settingsColorGreen => 'Green';
+
+  @override
+  String get settingsResetAppearance => 'Restore default appearance';
+
+  @override
+  String get settingsResetDone => 'Appearance restored.';
+
+  @override
+  String get settingsUndo => 'Undo';
 }

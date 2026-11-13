@@ -1100,6 +1100,60 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Você precisará entrar novamente para continuar jogando.'**
   String get accountSignOutConfirmBody;
+
+  /// No description provided for @settingsFontSmaller.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir fonte'**
+  String get settingsFontSmaller;
+
+  /// No description provided for @settingsFontLarger.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar fonte'**
+  String get settingsFontLarger;
+
+  /// No description provided for @settingsFontReset.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar tamanho padrão'**
+  String get settingsFontReset;
+
+  /// No description provided for @settingsColorViolet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Violeta'**
+  String get settingsColorViolet;
+
+  /// No description provided for @settingsColorCyan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ciano'**
+  String get settingsColorCyan;
+
+  /// No description provided for @settingsColorGreen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verde'**
+  String get settingsColorGreen;
+
+  /// No description provided for @settingsResetAppearance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar aparência padrão'**
+  String get settingsResetAppearance;
+
+  /// No description provided for @settingsResetDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aparência restaurada.'**
+  String get settingsResetDone;
+
+  /// No description provided for @settingsUndo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desfazer'**
+  String get settingsUndo;
 }
 
 class _AppLocalizationsDelegate

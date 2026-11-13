@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../models/interface_preferences.dart';
 import '../../../providers/app_providers.dart';
 import '../../shared/presentation/feature_frame.dart';
 
@@ -14,7 +15,13 @@ class SettingsPage extends ConsumerWidget {
     Color(0xFF37BFCF),
     Color(0xFF42A97B),
   ];
+
   static const _fontFamilies = ['Space Grotesk', 'DM Sans', 'Lato'];
+
+  // Faixa e passo do tamanho da fonte (o slider usa os mesmos valores).
+  static const _minScale = 0.85;
+  static const _maxScale = 1.15;
+  static const _scaleStep = 0.05;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,10 +31,56 @@ class SettingsPage extends ConsumerWidget {
     final soundService = ref.read(appSoundServiceProvider);
     final soundEnabled = ref.watch(soundEnabledProvider);
 
+    const defaults = InterfacePreferences();
+    final scaleIsDefault = preferences.textScale == defaults.textScale;
+    final appearanceIsDefault =
+        preferences.themeMode == defaults.themeMode &&
+        scaleIsDefault &&
+        preferences.fontFamily == defaults.fontFamily &&
+        preferences.seedColor == defaults.seedColor;
+
     void playToggle({bool? enabled}) =>
         soundService.playToggle(enabled: enabled ?? soundEnabled);
     void playSelection() => soundService.playSelection(enabled: soundEnabled);
     void playControl() => soundService.playControl(enabled: soundEnabled);
+
+    // A mesma rotina serve para restaurar o padrão e para desfazer.
+    Future<void> applyAppearance(InterfacePreferences values) async {
+      await controller.setThemeMode(values.themeMode);
+      await controller.setTextScale(values.textScale);
+      await controller.setFontFamily(values.fontFamily);
+      await controller.setSeedColor(values.seedColor);
+    }
+
+    Future<void> resetAppearance() async {
+      final previous = preferences;
+      playControl();
+      await applyAppearance(defaults);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.settingsResetDone),
+            action: SnackBarAction(
+              label: l10n.settingsUndo,
+              onPressed: () => applyAppearance(previous),
+            ),
+          ),
+        );
+    }
+
+    void stepScale(double delta) {
+      final next = ((preferences.textScale + delta) * 100).round() / 100;
+      playControl();
+      controller.setTextScale(next.clamp(_minScale, _maxScale).toDouble());
+    }
+
+    final swatches = [
+      (_seedColors[0], l10n.settingsColorViolet),
+      (_seedColors[1], l10n.settingsColorCyan),
+      (_seedColors[2], l10n.settingsColorGreen),
+    ];
 
     return AppFeatureFrame(
       title: l10n.settingsTitle,
@@ -69,15 +122,48 @@ class SettingsPage extends ConsumerWidget {
                     ),
                   ],
                 ),
-                Slider(
-                  min: 0.85,
-                  max: 1.15,
-                  divisions: 6,
-                  value: preferences.textScale,
-                  label: '${(preferences.textScale * 100).round()}%',
-                  onChanged: controller.setTextScale,
-                  onChangeEnd: (_) => playControl(),
+                // Botões − / + além do slider: mais fáceis de acertar no
+                // celular e acessíveis para quem não usa gestos de arrastar.
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip: l10n.settingsFontSmaller,
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
+                      onPressed: preferences.textScale > _minScale + 0.001
+                          ? () => stepScale(-_scaleStep)
+                          : null,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        min: _minScale,
+                        max: _maxScale,
+                        divisions: 6,
+                        value: preferences.textScale,
+                        label: '${(preferences.textScale * 100).round()}%',
+                        semanticFormatterCallback: (value) =>
+                            '${(value * 100).round()}%',
+                        onChanged: controller.setTextScale,
+                        onChangeEnd: (_) => playControl(),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.settingsFontLarger,
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      onPressed: preferences.textScale < _maxScale - 0.001
+                          ? () => stepScale(_scaleStep)
+                          : null,
+                    ),
+                  ],
                 ),
+                if (!scaleIsDefault)
+                  TextButton.icon(
+                    onPressed: () {
+                      playControl();
+                      controller.setTextScale(defaults.textScale);
+                    },
+                    icon: const Icon(Icons.restart_alt_rounded),
+                    label: Text(l10n.settingsFontReset),
+                  ),
                 const SizedBox(height: 6),
                 Text(l10n.settingsFontFamily),
                 const SizedBox(height: 8),
@@ -119,7 +205,7 @@ class SettingsPage extends ConsumerWidget {
                   expandedInsets: EdgeInsets.zero,
                   segments: [
                     ButtonSegment<Locale>(
-                      value: Locale('pt', 'BR'),
+                      value: const Locale('pt', 'BR'),
                       label: FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
@@ -130,7 +216,7 @@ class SettingsPage extends ConsumerWidget {
                       ),
                     ),
                     ButtonSegment<Locale>(
-                      value: Locale('en'),
+                      value: const Locale('en'),
                       label: FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
@@ -176,44 +262,100 @@ class SettingsPage extends ConsumerWidget {
           _SettingsGroup(
             title: l10n.settingsAccentColor,
             child: Wrap(
-              spacing: 14,
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                for (final color in _seedColors)
-                  Tooltip(
-                    message: l10n.settingsSelectAccentColor,
-                    child: InkWell(
-                      onTap: () {
-                        playSelection();
-                        controller.setSeedColor(color);
-                      },
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: preferences.seedColor == color
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: preferences.seedColor == color
-                            ? const Icon(
-                                Icons.check_rounded,
-                                size: 18,
-                                color: AppColors.background,
-                              )
-                            : null,
-                      ),
-                    ),
+                for (final (color, name) in swatches)
+                  _AccentColorOption(
+                    color: color,
+                    name: name,
+                    selected: preferences.seedColor == color,
+                    onTap: () {
+                      playSelection();
+                      controller.setSeedColor(color);
+                    },
                   ),
               ],
             ),
           ),
+          const SizedBox(height: 18),
+          // Desabilitado quando a aparência já está no padrão.
+          OutlinedButton.icon(
+            onPressed: appearanceIsDefault ? null : resetAppearance,
+            icon: const Icon(Icons.restart_alt_rounded),
+            label: Text(l10n.settingsResetAppearance),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Cor de destaque com nome visível, área de toque de pelo menos 48 px e
+/// semântica de "botão selecionado" para leitores de tela.
+class _AccentColorOption extends StatelessWidget {
+  const _AccentColorOption({
+    required this.color,
+    required this.name,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final String name;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: name,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 72, minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: selected ? onSurface : Colors.transparent,
+                      width: 3,
+                    ),
+                  ),
+                  child: selected
+                      ? const Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: AppColors.background,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -237,13 +379,18 @@ class _SettingsGroup extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.cyan,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.1,
+          // Título de seção maior (12 px, antes 10 px) e marcado como
+          // cabeçalho para leitores de tela.
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.cyan,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.1,
+              ),
             ),
           ),
           const SizedBox(height: 10),

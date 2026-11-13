@@ -197,5 +197,14 @@
   "authErrorUserDisabled": "Esta conta foi desativada.",
   "authErrorGeneric": "Algo deu errado. Tente novamente em instantes.",
   "accountSignOutConfirmTitle": "Sair da conta?",
-  "accountSignOutConfirmBody": "Você precisará entrar novamente para continuar jogando."
+  "accountSignOutConfirmBody": "Você precisará entrar novamente para continuar jogando.",
+   "settingsFontSmaller": "Diminuir fonte",
+   "settingsFontLarger": "Aumentar fonte",
+   "settingsFontReset": "Restaurar tamanho padrão",
+   "settingsColorViolet": "Violeta",
+   "settingsColorCyan": "Ciano",
+   "settingsColorGreen": "Verde",
+   "settingsResetAppearance": "Restaurar aparência padrão",
+   "settingsResetDone": "Aparência restaurada.",
+   "settingsUndo": "Desfazer"
 }
