@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
@@ -18,10 +20,10 @@ class SettingsPage extends ConsumerWidget {
 
   static const _fontFamilies = ['Space Grotesk', 'DM Sans', 'Lato'];
 
-  // Faixa e passo do tamanho da fonte (o slider usa os mesmos valores).
-  static const _minScale = 0.85;
-  static const _maxScale = 1.15;
-  static const _scaleStep = 0.05;
+  // Faixa do tamanho da fonte: de 50% a 150%, em 20 passos de 5%.
+  static const _minScale = 0.5;
+  static const _maxScale = 1.5;
+  static const _scaleDivisions = 20;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,49 +34,14 @@ class SettingsPage extends ConsumerWidget {
     final soundEnabled = ref.watch(soundEnabledProvider);
 
     const defaults = InterfacePreferences();
-    final scaleIsDefault = preferences.textScale == defaults.textScale;
-    final appearanceIsDefault =
-        preferences.themeMode == defaults.themeMode &&
-        scaleIsDefault &&
-        preferences.fontFamily == defaults.fontFamily &&
-        preferences.seedColor == defaults.seedColor;
+    final scaleIsDefault =
+        (preferences.textScale * 100).round() ==
+        (defaults.textScale * 100).round();
 
     void playToggle({bool? enabled}) =>
         soundService.playToggle(enabled: enabled ?? soundEnabled);
     void playSelection() => soundService.playSelection(enabled: soundEnabled);
     void playControl() => soundService.playControl(enabled: soundEnabled);
-
-    // A mesma rotina serve para restaurar o padrão e para desfazer.
-    Future<void> applyAppearance(InterfacePreferences values) async {
-      await controller.setThemeMode(values.themeMode);
-      await controller.setTextScale(values.textScale);
-      await controller.setFontFamily(values.fontFamily);
-      await controller.setSeedColor(values.seedColor);
-    }
-
-    Future<void> resetAppearance() async {
-      final previous = preferences;
-      playControl();
-      await applyAppearance(defaults);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.settingsResetDone),
-            action: SnackBarAction(
-              label: l10n.settingsUndo,
-              onPressed: () => applyAppearance(previous),
-            ),
-          ),
-        );
-    }
-
-    void stepScale(double delta) {
-      final next = ((preferences.textScale + delta) * 100).round() / 100;
-      playControl();
-      controller.setTextScale(next.clamp(_minScale, _maxScale).toDouble());
-    }
 
     final swatches = [
       (_seedColors[0], l10n.settingsColorViolet),
@@ -113,46 +80,27 @@ class SettingsPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(l10n.settingsFontSize),
+                // Sem número: um "A" pequeno e um grande nas pontas indicam o
+                // sentido do slider, que se arrasta com o dedo.
                 Row(
                   children: [
-                    Expanded(child: Text(l10n.settingsFontSize)),
-                    Text(
-                      '${(preferences.textScale * 100).round()}%',
-                      style: const TextStyle(color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-                // Botões − / + além do slider: mais fáceis de acertar no
-                // celular e acessíveis para quem não usa gestos de arrastar.
-                Row(
-                  children: [
-                    IconButton(
-                      tooltip: l10n.settingsFontSmaller,
-                      icon: const Icon(Icons.remove_circle_outline_rounded),
-                      onPressed: preferences.textScale > _minScale + 0.001
-                          ? () => stepScale(-_scaleStep)
-                          : null,
-                    ),
+                    const _ScaleLetter(size: 13),
                     Expanded(
                       child: Slider(
                         min: _minScale,
                         max: _maxScale,
-                        divisions: 6,
-                        value: preferences.textScale,
-                        label: '${(preferences.textScale * 100).round()}%',
-                        semanticFormatterCallback: (value) =>
-                            '${(value * 100).round()}%',
-                        onChanged: controller.setTextScale,
+                        divisions: _scaleDivisions,
+                        value: preferences.textScale
+                            .clamp(_minScale, _maxScale)
+                            .toDouble(),
+                        onChanged: (value) => controller.setTextScale(
+                          (value * 100).round() / 100,
+                        ),
                         onChangeEnd: (_) => playControl(),
                       ),
                     ),
-                    IconButton(
-                      tooltip: l10n.settingsFontLarger,
-                      icon: const Icon(Icons.add_circle_outline_rounded),
-                      onPressed: preferences.textScale < _maxScale - 0.001
-                          ? () => stepScale(_scaleStep)
-                          : null,
-                    ),
+                    const _ScaleLetter(size: 26),
                   ],
                 ),
                 if (!scaleIsDefault)
@@ -279,12 +227,7 @@ class SettingsPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 18),
-          // Desabilitado quando a aparência já está no padrão.
-          OutlinedButton.icon(
-            onPressed: appearanceIsDefault ? null : resetAppearance,
-            icon: const Icon(Icons.restart_alt_rounded),
-            label: Text(l10n.settingsResetAppearance),
-          ),
+          const _ResetAppearanceSection(),
         ],
       ),
     );
@@ -399,4 +342,168 @@ class _SettingsGroup extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// "A" decorativo nas pontas do slider de tamanho da fonte. Não escala com a
+/// configuração, para ficar sempre do mesmo tamanho.
+class _ScaleLetter extends StatelessWidget {
+  const _ScaleLetter({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Text(
+      'A',
+      textScaler: TextScaler.noScaling,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w600),
+    ),
+  );
+}
+
+/// Botão "Restaurar aparência padrão" + aviso com "Desfazer".
+///
+/// O aviso aparece logo abaixo do botão, fica visível por 8 s e some com um
+/// efeito de transparência de 1 s (cerca de 9 s no total).
+class _ResetAppearanceSection extends ConsumerStatefulWidget {
+  const _ResetAppearanceSection();
+
+  @override
+  ConsumerState<_ResetAppearanceSection> createState() =>
+      _ResetAppearanceSectionState();
+}
+
+class _ResetAppearanceSectionState
+    extends ConsumerState<_ResetAppearanceSection> {
+  static const _visibleFor = Duration(seconds: 8);
+  static const _fadeDuration = Duration(seconds: 1);
+
+  Timer? _timer;
+  InterfacePreferences? _previous;
+  bool _showNotice = false;
+  bool _opaque = false;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _apply(InterfacePreferences values) async {
+    final controller = ref.read(interfacePreferencesProvider.notifier);
+    await controller.setThemeMode(values.themeMode);
+    await controller.setTextScale(values.textScale);
+    await controller.setFontFamily(values.fontFamily);
+    await controller.setSeedColor(values.seedColor);
+  }
+
+  Future<void> _reset() async {
+    final previous = ref.read(interfacePreferencesProvider);
+    ref
+        .read(appSoundServiceProvider)
+        .playControl(enabled: ref.read(soundEnabledProvider));
+    _timer?.cancel();
+    await _apply(const InterfacePreferences());
+    if (!mounted) return;
+    setState(() {
+      _previous = previous;
+      _showNotice = true;
+      _opaque = true;
+    });
+    _timer = Timer(_visibleFor, _fadeOut);
+    // Rola até o aviso (que fica no fim da página) para ele não ficar
+    // cortado. Roda depois do quadro em que o aviso já foi medido.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 250),
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+    });
+  }
+
+  void _fadeOut() {
+    if (mounted) setState(() => _opaque = false);
+  }
+
+  void _onFadeEnd() {
+    if (!_opaque && mounted) {
+      setState(() {
+        _showNotice = false;
+        _previous = null;
+      });
+    }
+  }
+
+  Future<void> _undo() async {
+    final previous = _previous;
+    if (previous == null) return;
+    _timer?.cancel();
+    setState(() => _opaque = false);
+    await _apply(previous);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final preferences = ref.watch(interfacePreferencesProvider);
+    const defaults = InterfacePreferences();
+    final isDefault =
+        preferences.themeMode == defaults.themeMode &&
+        (preferences.textScale * 100).round() ==
+            (defaults.textScale * 100).round() &&
+        preferences.fontFamily == defaults.fontFamily &&
+        preferences.seedColor == defaults.seedColor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Desabilitado quando a aparência já está no padrão.
+        OutlinedButton.icon(
+          onPressed: isDefault ? null : _reset,
+          icon: const Icon(Icons.restart_alt_rounded),
+          label: Text(l10n.settingsResetAppearance),
+        ),
+        if (_showNotice)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: AnimatedOpacity(
+              opacity: _opaque ? 1 : 0,
+              duration: _fadeDuration,
+              curve: Curves.easeOut,
+              onEnd: _onFadeEnd,
+              child: Semantics(
+                liveRegion: true,
+                child: Material(
+                  color: scheme.inverseSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.settingsResetDone,
+                            style: TextStyle(color: scheme.onInverseSurface),
+                          ),
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: scheme.inversePrimary,
+                          ),
+                          onPressed: _undo,
+                          child: Text(l10n.settingsUndo),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }

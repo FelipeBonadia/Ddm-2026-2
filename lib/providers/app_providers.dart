@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/routing/app_router.dart';
 import '../models/interface_preferences.dart';
+import 'auth_providers.dart';
 import '../services/sound_service.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -142,13 +143,15 @@ final appLocaleProvider = Provider<Locale>(
   ),
 );
 
-final soundEnabledProvider = Provider<bool>(
-  (ref) => ref.watch(
+final soundEnabledProvider = Provider<bool>((ref) {
+  final enabledInSettings = ref.watch(
     interfacePreferencesProvider.select(
       (preferences) => preferences.soundEnabled,
     ),
-  ),
-);
+  );
+  final signedIn = ref.watch(currentUserProvider) != null;
+  return enabledInSettings && signedIn;
+});
 
 final appSoundServiceProvider = Provider<AppSoundService>((ref) {
   final service = AppSoundService();

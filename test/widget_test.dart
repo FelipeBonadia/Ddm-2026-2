@@ -42,32 +42,33 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('dragging onto equation board and tapping placed tile to remove it', (
-    tester,
-  ) async {
-    await _pumpApp(tester, const Size(1000, 800));
-    await tester.tap(find.text('Jogar agora'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'dragging onto equation board and tapping placed tile to remove it',
+    (tester) async {
+      await _pumpApp(tester, const Size(1000, 800));
+      await tester.tap(find.text('Jogar agora'));
+      await tester.pumpAndSettle();
 
-    final gameContext = tester.element(find.byType(GamePage));
-    final container = ProviderScope.containerOf(gameContext);
-    final board = find.byKey(const ValueKey('game-equation-board'));
+      final gameContext = tester.element(find.byType(GamePage));
+      final container = ProviderScope.containerOf(gameContext);
+      final board = find.byKey(const ValueKey('game-equation-board'));
 
-    final num0 = find.byKey(const ValueKey('game-number-0'));
-    final gesture = await tester.startGesture(tester.getCenter(num0));
-    await gesture.moveTo(tester.getCenter(board));
-    await gesture.up();
-    await tester.pumpAndSettle();
+      final num0 = find.byKey(const ValueKey('game-number-0'));
+      final gesture = await tester.startGesture(tester.getCenter(num0));
+      await gesture.moveTo(tester.getCenter(board));
+      await gesture.up();
+      await tester.pumpAndSettle();
 
-    expect(container.read(gameSessionProvider).tokens, hasLength(1));
-    expect(container.read(gameSessionProvider).usedNumberIndexes, {0});
+      expect(container.read(gameSessionProvider).tokens, hasLength(1));
+      expect(container.read(gameSessionProvider).usedNumberIndexes, {0});
 
-    await tester.tap(find.byTooltip('Toque para remover'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Toque para remover'));
+      await tester.pumpAndSettle();
 
-    expect(container.read(gameSessionProvider).tokens, isEmpty);
-    expect(container.read(gameSessionProvider).usedNumberIndexes, isEmpty);
-  });
+      expect(container.read(gameSessionProvider).tokens, isEmpty);
+      expect(container.read(gameSessionProvider).usedNumberIndexes, isEmpty);
+    },
+  );
 
   testWidgets('compact desktop navigation does not overflow', (tester) async {
     await _pumpApp(tester, const Size(1000, 400));
@@ -158,7 +159,8 @@ void main() {
     await tester.drag(find.byType(Slider), const Offset(500, 0));
     await tester.pumpAndSettle();
 
-    expect(find.text('115%'), findsOneWidget);
+    // O tamanho não é mais mostrado em porcentagem.
+    expect(find.text('150%'), findsNothing);
     expect(
       MediaQuery.textScalerOf(tester.element(title)).scale(100),
       greaterThan(initialScale),

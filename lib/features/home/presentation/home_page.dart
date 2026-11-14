@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart' show FirebaseUIAuth;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
+import '../../../providers/auth_providers.dart';
 import '../../game/application/game_session.dart';
 import '../../game/domain/game_engine.dart';
 import '../../progress/presentation/progress_tracker.dart';
@@ -28,7 +28,6 @@ class HomePage extends ConsumerWidget {
     final progress = ref.watch(progressTrackerProvider);
     final streakDays = progress.currentStreakAsOf(DateTime.now());
 
-    void playNavigation() => soundService.playNavigation(enabled: soundEnabled);
     void playPrimaryAction() =>
         soundService.playPrimaryAction(enabled: soundEnabled);
 
@@ -68,71 +67,9 @@ class HomePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Menu da conta: mostra quem está logado e permite sair.
-                  // (Antes ia para /login, mas com o usuário logado o
-                  // redirect do roteador voltava para a home.)
-                  PopupMenuButton<String>(
-                    tooltip: l10n.homeAccessAccount,
-                    icon: const Icon(Icons.person_outline_rounded),
-                    onOpened: playNavigation,
-                    onSelected: (_) async {
-                      // Pede confirmação: sair sem querer obrigaria a entrar
-                      // de novo.
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (dialogContext) => AlertDialog(
-                          title: Text(l10n.accountSignOutConfirmTitle),
-                          content: Text(l10n.accountSignOutConfirmBody),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(false),
-                              child: Text(l10n.authCancel),
-                            ),
-                            FilledButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(true),
-                              child: Text(l10n.accountSignOut),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirmed != true || !context.mounted) return;
-                      // Zera o estado em memória de quem está saindo, para o
-                      // próximo login não herdar o progresso e o desafio
-                      // atual.
-                      ref.invalidate(gameSessionProvider);
-                      ref.invalidate(progressTrackerProvider);
-                      // Sai do Firebase (e do Google); o redirect do
-                      // roteador leva para a página de login.
-                      FirebaseUIAuth.signOut(context: context);
-                    },
-                    itemBuilder: (context) {
-                      final user = FirebaseAuth.instance.currentUser;
-                      final who = (user?.displayName?.isNotEmpty ?? false)
-                          ? user!.displayName!
-                          : (user?.email ?? '');
-                      return [
-                        if (who.isNotEmpty) ...[
-                          PopupMenuItem<String>(
-                            enabled: false,
-                            child: Text(who, overflow: TextOverflow.ellipsis),
-                          ),
-                          const PopupMenuDivider(),
-                        ],
-                        PopupMenuItem<String>(
-                          value: 'signOut',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.logout_rounded, size: 20),
-                              const SizedBox(width: 12),
-                              Text(l10n.accountSignOut),
-                            ],
-                          ),
-                        ),
-                      ];
-                    },
-                  ),
+                  // Menu da conta: avatar de quem está logado, com nome/e-mail,
+                  // atalho para as configurações e "Sair".
+                  const _AccountMenu(),
                 ],
               ),
               const SizedBox(height: 28),
@@ -335,7 +272,8 @@ class _NumberTile extends StatelessWidget {
     height: 52,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.onPrimary,
+      color: AppColors
+          .violetDark, //Theme.of(context).colorScheme.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(14),
       border: Border.all(color: Theme.of(context).dividerColor),
     ),
@@ -449,4 +387,181 @@ class _StepTile extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Menu da conta: avatar com a inicial de quem está logado. Ao tocar abre um
+/// cartão com nome e e-mail, atalho para as configurações e "Sair" (em
+/// vermelho, com confirmação).
+class _AccountMenu extends ConsumerWidget {
+  const _AccountMenu();
+
+  static const _settingsValue = 'settings';
+  static const _signOutValue = 'signOut';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final user = ref.watch(currentUserProvider);
+    final email = user?.email ?? '';
+    final name = (user?.displayName?.isNotEmpty ?? false)
+        ? user!.displayName!
+        : email;
+
+    return PopupMenuButton<String>(
+      tooltip: l10n.homeAccessAccount,
+      position: PopupMenuPosition.under,
+      offset: const Offset(0, 6),
+      constraints: const BoxConstraints(minWidth: 240),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      onOpened: () => ref
+          .read(appSoundServiceProvider)
+          .playNavigation(enabled: ref.read(soundEnabledProvider)),
+      onSelected: (value) => _onSelected(context, ref, value),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: _Avatar(name: name, radius: 20),
+      ),
+      itemBuilder: (context) => [
+        if (name.isNotEmpty) ...[
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Row(
+              children: [
+                _Avatar(name: name, radius: 22),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.onSurface,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (email.isNotEmpty && email != name)
+                        Text(
+                          email,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuDivider(),
+        ],
+        PopupMenuItem<String>(
+          value: _settingsValue,
+          child: Row(
+            children: [
+              const Icon(Icons.settings_outlined, size: 20),
+              const SizedBox(width: 12),
+              Text(l10n.navSettings),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: _signOutValue,
+          child: Row(
+            children: [
+              Icon(Icons.logout_rounded, size: 20, color: scheme.error),
+              const SizedBox(width: 12),
+              Text(l10n.accountSignOut, style: TextStyle(color: scheme.error)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onSelected(
+    BuildContext context,
+    WidgetRef ref,
+    String value,
+  ) async {
+    if (value == _settingsValue) {
+      ref.read(selectedSectionProvider.notifier).select(AppSection.settings);
+      context.go(AppSection.settings.route);
+      return;
+    }
+    if (value != _signOutValue) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    // Pede confirmação: sair sem querer obrigaria a entrar de novo.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: Icon(Icons.logout_rounded, color: scheme.error),
+        title: Text(l10n.accountSignOutConfirmTitle),
+        content: Text(l10n.accountSignOutConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.authCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: scheme.error,
+              foregroundColor: scheme.onError,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.accountSignOut),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    // Zera o estado em memória de quem está saindo, para o próximo login não
+    // herdar o progresso e o desafio atual.
+    ref.invalidate(gameSessionProvider);
+    ref.invalidate(progressTrackerProvider);
+    // Sai do Firebase (e do Google); o redirect do roteador leva para a
+    // página de login.
+    FirebaseUIAuth.signOut(context: context);
+  }
+}
+
+/// Círculo com a inicial do nome (ou um ícone, se não houver nome).
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.name, required this.radius});
+
+  final String name;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final trimmed = name.trim();
+    final initial = trimmed.isEmpty
+        ? null
+        : String.fromCharCode(trimmed.runes.first).toUpperCase();
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: scheme.primary,
+      foregroundColor: scheme.onPrimary,
+      child: initial == null
+          ? Icon(Icons.person_outline_rounded, size: radius)
+          : Text(
+              initial,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: radius * 0.9,
+              ),
+            ),
+    );
+  }
 }

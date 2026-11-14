@@ -73,7 +73,7 @@ class _AppNavigationBarState extends ConsumerState<AppNavigationBar> {
             child: CurvedNavigationBar(
               key: _barKey,
               index: selectedIndex,
-              height: 62,
+              height: 50,
               color: colorScheme.surface,
               buttonBackgroundColor: colorScheme.primary,
               backgroundColor: theme.scaffoldBackgroundColor,
@@ -158,8 +158,8 @@ class _NavigationButtonState extends State<_NavigationButton> {
             duration: const Duration(milliseconds: 140),
             curve: Curves.easeOut,
             child: AnimatedContainer(
-              width: 42,
-              height: 42,
+              width: 34,
+              height: 34,
               duration: const Duration(milliseconds: 140),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -180,7 +180,7 @@ class _NavigationButtonState extends State<_NavigationButton> {
               ),
               child: Icon(
                 widget.icon,
-                size: 22,
+                size: 20,
                 color: selected
                     ? colorScheme.onPrimary
                     : (_hovered
