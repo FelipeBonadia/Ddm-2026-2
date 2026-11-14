@@ -128,6 +128,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Use cada um dos quatro números uma vez para formar uma igualdade válida.';
 
   @override
+  String get gameDragHint => 'Arraste os números e operadores para jogar.';
+
+  @override
   String get gameLeftSide => 'LADO ESQUERDO';
 
   @override
@@ -702,6 +705,9 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get gameRuleHint =>
       'Use cada um dos quatro números uma vez para formar uma igualdade.';
+
+  @override
+  String get gameDragHint => 'Arraste os números e operadores para jogar.';
 
   @override
   String get gameLeftSide => 'LADO ESQUERDO';

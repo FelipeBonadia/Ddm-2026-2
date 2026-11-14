@@ -61,7 +61,7 @@ class _GamePageState extends ConsumerState<GamePage> {
     void playSelection() => soundService.playSelection(enabled: soundEnabled);
 
     // ── Lógica única de "pode essa peça entrar agora?" ──────────────────────
-    // Delega ao controller: a regra vive num lugar só (toque e drop iguais).
+    // Delega ao controller: a regra vive num lugar só.
     bool canAccept(_GamePiece piece) => switch (piece.kind) {
       _GamePieceKind.number => controller.canAddNumber(piece.numberIndex!),
       _GamePieceKind.operation => controller.canAddOperation(piece.operation!),
@@ -70,7 +70,7 @@ class _GamePageState extends ConsumerState<GamePage> {
       _GamePieceKind.equality => controller.canAddEquality(),
     };
 
-    // insertAt == null → adiciona no final (toque); com valor → insere na
+    // insertAt == null → adiciona no final; com valor → insere na
     // posição onde a peça foi solta.
     void addPiece(_GamePiece piece, [int? insertAt]) {
       final added = switch (piece.kind) {
@@ -144,7 +144,6 @@ class _GamePageState extends ConsumerState<GamePage> {
                     metrics: metrics,
                     enabled: canAccept(piece),
                     isUsed: isUsed,
-                    onTap: () => addPiece(piece),
                     onDragStarted: () => _setDragging(true),
                     onDragEnded: () => _setDragging(false),
                   ),
@@ -227,7 +226,19 @@ class _GamePageState extends ConsumerState<GamePage> {
                     ),
                   ),
 
-                  // 2. Tagline ──────────────────────────────────────────────
+                  // 2. Instrução de arrastar + Tagline ───────────────────────
+                  Padding(
+                    padding: EdgeInsets.only(top: gap / 2),
+                    child: Text(
+                      l10n.gameDragHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colorScheme.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: gap / 2),
                     child: Text(
@@ -797,7 +808,6 @@ class _DraggableTile extends StatelessWidget {
     required this.metrics,
     required this.enabled,
     required this.isUsed,
-    required this.onTap,
     required this.onDragStarted,
     required this.onDragEnded,
   });
@@ -807,7 +817,6 @@ class _DraggableTile extends StatelessWidget {
   final _TileMetrics metrics;
   final bool enabled;
   final bool isUsed;
-  final VoidCallback onTap;
   final VoidCallback onDragStarted;
   final VoidCallback onDragEnded;
 
@@ -819,7 +828,6 @@ class _DraggableTile extends StatelessWidget {
       metrics: metrics,
       enabled: enabled,
       isUsed: isUsed,
-      onTap: onTap,
     );
 
     if (!enabled) {

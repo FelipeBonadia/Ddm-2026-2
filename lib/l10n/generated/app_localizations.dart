@@ -333,6 +333,12 @@ abstract class AppLocalizations {
   /// **'Use cada um dos quatro números uma vez para formar uma igualdade válida.'**
   String get gameRuleHint;
 
+  /// No description provided for @gameDragHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arraste os números e operadores para jogar.'**
+  String get gameDragHint;
+
   /// No description provided for @gameLeftSide.
   ///
   /// In pt, this message translates to:

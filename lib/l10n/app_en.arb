@@ -39,6 +39,7 @@
   "gameHard": "Hard",
   "gameResultTarget": "MAKE BOTH SIDES EQUAL",
   "gameRuleHint": "Use each of the four numbers once to form a valid equality.",
+  "gameDragHint": "Drag the numbers and operators to play.",
   "gameLeftSide": "LEFT SIDE",
   "gameRightSide": "RIGHT SIDE",
   "gameNumbers": "NUMBERS",

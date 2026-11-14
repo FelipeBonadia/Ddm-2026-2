@@ -39,6 +39,7 @@
   "gameHard": "DIFÍCIL",
   "gameResultTarget": "DEIXE OS DOIS LADOS IGUAIS",
   "gameRuleHint": "Use cada um dos quatro números uma vez para formar uma igualdade.",
+  "gameDragHint": "Arraste os números e operadores para jogar.",
   "gameLeftSide": "LADO ESQUERDO",
   "gameRightSide": "LADO DIREITO",
   "gameNumbers": "NÚMEROS",

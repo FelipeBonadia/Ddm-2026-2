@@ -128,6 +128,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use each of the four numbers once to form a valid equality.';
 
   @override
+  String get gameDragHint => 'Drag the numbers and operators to play.';
+
+  @override
   String get gameLeftSide => 'LEFT SIDE';
 
   @override
