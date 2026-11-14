@@ -20,13 +20,44 @@ enum AppSoundEffect {
 class AppSoundService {
   AppSoundService({AudioPlayer? effectPlayer, AudioPlayer? musicPlayer})
     : _effectPlayer = effectPlayer ?? AudioPlayer(),
-      _musicPlayer = musicPlayer ?? AudioPlayer();
+      _musicPlayer = musicPlayer ?? AudioPlayer() {
+    unawaited(_configureAndroidAudioContexts());
+  }
 
   final AudioPlayer _effectPlayer;
   final AudioPlayer _musicPlayer;
   Uint8List? _musicWave;
   bool _musicEnabled = false;
   bool _musicStarted = false;
+
+  Future<void> _configureAndroidAudioContexts() async {
+    try {
+      await _effectPlayer.setAudioContext(
+        AudioContext(
+          android: const AudioContextAndroid(
+            isSpeakerphoneOn: false,
+            stayAwake: false,
+            contentType: AndroidContentType.sonification,
+            usageType: AndroidUsageType.assistanceSonification,
+            audioFocus: AndroidAudioFocus.none,
+          ),
+        ),
+      );
+      await _musicPlayer.setAudioContext(
+        AudioContext(
+          android: const AudioContextAndroid(
+            isSpeakerphoneOn: false,
+            stayAwake: false,
+            contentType: AndroidContentType.music,
+            usageType: AndroidUsageType.game,
+            audioFocus: AndroidAudioFocus.gain,
+          ),
+        ),
+      );
+    } catch (error) {
+      debugPrint('Unable to configure audio context: $error');
+    }
+  }
 
   void setSoundEnabled(bool enabled) {
     _musicEnabled = enabled;

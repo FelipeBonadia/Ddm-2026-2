@@ -1,5 +1,6 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
@@ -17,6 +18,16 @@ const _googleClientId = String.fromEnvironment(
   'GOOGLE_CLIENT_ID',
   defaultValue: 'REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com',
 );
+
+String _resolveGoogleClientId() {
+  final isPlaceholder = _googleClientId.startsWith('REPLACE_WITH_');
+  if (!kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.android &&
+      isPlaceholder) {
+    return '';
+  }
+  return _googleClientId;
+}
 
 /// Integrantes do grupo (nomes próprios, não são traduzidos).
 const _teamMembers = <String>['Rick Robert Tomaz Rezende', 'Felipe Bonadia'];
@@ -38,7 +49,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _googleProvider = GoogleProvider(clientId: _googleClientId);
+  final _googleProvider = GoogleProvider(clientId: _resolveGoogleClientId());
 
   void _playSelection() {
     final enabled = ref.read(soundEnabledProvider);
