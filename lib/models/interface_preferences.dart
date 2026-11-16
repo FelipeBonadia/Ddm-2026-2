@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class InterfacePreferences {
   const InterfacePreferences({
-    this.themeMode = ThemeMode.dark,
+    this.themeMode = ThemeMode.system,
     this.textScale = 1,
     this.fontFamily = 'Space Grotesk',
     this.seedColor = const Color(0xFF9B7BFF),

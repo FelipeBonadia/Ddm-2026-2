@@ -207,5 +207,22 @@
    "settingsColorGreen": "Verde",
    "settingsResetAppearance": "Restaurar aparência padrão",
    "settingsResetDone": "Aparência restaurada.",
-   "settingsUndo": "Desfazer"
+   "settingsUndo": "Desfazer",
+   "settingsThemeLabel": "Tema",
+   "settingsThemeSystem": "Dispositivo",
+   "settingsThemeLight": "Claro",
+   "settingsThemeDark": "Escuro",
+   "settingsColorOrange": "Laranja",
+   "settingsColorPink": "Rosa",
+   "settingsColorBlue": "Azul",
+   "settingsColorRed": "Vermelho",
+   "settingsColorCustom": "Personalizada",
+   "settingsCustomColorTitle": "Escolha uma cor",
+   "settingsCustomColorApply": "Aplicar",
+   "settingsCustomColorCancel": "Cancelar",
+   "gameLoading": "Carregando seus desafios…",
+   "gameLoadError": "Não foi possível carregar seu progresso.",
+   "gameRetry": "Tentar novamente",
+   "gameAllSolved": "Você resolveu todos os desafios deste nível! Eles vão se repetir.",
+   "progressSolvedNumbers": "Números resolvidos"
 }

@@ -117,17 +117,17 @@ void main() {
     await tester.tap(find.byTooltip('Configurações'));
     await tester.pumpAndSettle();
     expect(
-      Theme.of(tester.element(find.text('Ativado'))).brightness,
-      Brightness.dark,
+      Theme.of(tester.element(find.text('Desativado'))).brightness,
+      Brightness.light,
     );
 
     await tester.tap(find.widgetWithText(SwitchListTile, 'Tema escuro'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Desativado'), findsOneWidget);
+    expect(find.text('Ativado'), findsOneWidget);
     expect(
-      Theme.of(tester.element(find.text('Desativado'))).brightness,
-      Brightness.light,
+      Theme.of(tester.element(find.text('Ativado'))).brightness,
+      Brightness.dark,
     );
   });
 
@@ -198,7 +198,7 @@ void main() {
 Future<void> _pumpApp(WidgetTester tester, Size size) async {
   SharedPreferences.setMockInitialValues({
     'selected_locale': 'pt_BR',
-    'theme_mode': 'dark',
+    'theme_mode': 'light',
   });
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -209,7 +209,9 @@ Future<void> _pumpApp(WidgetTester tester, Size size) async {
       overrides: [
         authStateProvider.overrideWith((ref) => Stream.value(null)),
         currentUserProvider.overrideWithValue(null),
-        solvedNumbersProvider.overrideWith((ref) => Future.value(<int>{})),
+        solvedChallengesProvider.overrideWith(
+          (ref) => Future.value(<String>{}),
+        ),
       ],
       child: const MathPuzzleApp(),
     ),

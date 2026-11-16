@@ -5,6 +5,7 @@ import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../widgets/app_loading_indicator.dart';
+import '../../../widgets/solved_numbers_panel.dart';
 import '../../game/domain/game_engine.dart';
 import '../../shared/presentation/feature_frame.dart';
 import '../presentation/progress_tracker.dart';
@@ -52,6 +53,14 @@ class ProgressPage extends ConsumerWidget {
                 ),
             ],
           ),
+          const SizedBox(height: 28),
+          Text(
+            l10n.progressSolvedNumbers,
+            style: Theme.of(context).textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          const SolvedNumbersPanel(),
           const SizedBox(height: 28),
           Text(
             l10n.progressHistoryTitle,

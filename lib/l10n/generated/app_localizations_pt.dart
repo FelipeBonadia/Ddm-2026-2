@@ -588,6 +588,58 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsUndo => 'Desfazer';
+
+  @override
+  String get settingsThemeLabel => 'Tema';
+
+  @override
+  String get settingsThemeSystem => 'Dispositivo';
+
+  @override
+  String get settingsThemeLight => 'Claro';
+
+  @override
+  String get settingsThemeDark => 'Escuro';
+
+  @override
+  String get settingsColorOrange => 'Laranja';
+
+  @override
+  String get settingsColorPink => 'Rosa';
+
+  @override
+  String get settingsColorBlue => 'Azul';
+
+  @override
+  String get settingsColorRed => 'Vermelho';
+
+  @override
+  String get settingsColorCustom => 'Personalizada';
+
+  @override
+  String get settingsCustomColorTitle => 'Escolha uma cor';
+
+  @override
+  String get settingsCustomColorApply => 'Aplicar';
+
+  @override
+  String get settingsCustomColorCancel => 'Cancelar';
+
+  @override
+  String get gameLoading => 'Carregando seus desafios…';
+
+  @override
+  String get gameLoadError => 'Não foi possível carregar seu progresso.';
+
+  @override
+  String get gameRetry => 'Tentar novamente';
+
+  @override
+  String get gameAllSolved =>
+      'Você resolveu todos os desafios deste nível! Eles vão se repetir.';
+
+  @override
+  String get progressSolvedNumbers => 'Números resolvidos';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

@@ -207,5 +207,22 @@
   "settingsColorGreen": "Green",
   "settingsResetAppearance": "Restore default appearance",
   "settingsResetDone": "Appearance restored.",
-  "settingsUndo": "Undo"
+  "settingsUndo": "Undo",
+   "settingsThemeLabel": "Theme",
+   "settingsThemeSystem": "Device",
+   "settingsThemeLight": "Light",
+   "settingsThemeDark": "Dark",
+   "settingsColorOrange": "Orange",
+   "settingsColorPink": "Pink",
+   "settingsColorBlue": "Blue",
+   "settingsColorRed": "Red",
+   "settingsColorCustom": "Custom",
+   "settingsCustomColorTitle": "Pick a color",
+   "settingsCustomColorApply": "Apply",
+   "settingsCustomColorCancel": "Cancel",
+   "gameLoading": "Loading your challenges…",
+   "gameLoadError": "Could not load your progress.",
+   "gameRetry": "Try again",
+   "gameAllSolved": "You solved every challenge in this level! They will now repeat.",
+   "progressSolvedNumbers": "Solved numbers"
 }

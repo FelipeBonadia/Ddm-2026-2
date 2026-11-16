@@ -31,7 +31,25 @@ class FirestoreService {
         .map((snap) => [for (final doc in snap.docs) doc.data()]);
   }
 
-  // ── Números resolvidos (já existia) ───────────────────────────────────────
+  // ── Desafios resolvidos ───────────────────────────────────────────────────
+  // Cada desafio (nível + os quatro números) tem uma chave estável, por
+  // exemplo `easy:1,2,5,9:false`. As chaves ficam num array do documento do
+  // usuário e servem para nunca repetir um desafio já resolvido.
+
+  Future<void> saveSolvedChallenge(String uid, String challengeKey) async {
+    await _userDoc(uid).set({
+      'solvedChallenges': FieldValue.arrayUnion([challengeKey]),
+    }, SetOptions(merge: true));
+  }
+
+  Future<Set<String>> fetchSolvedChallenges(String uid) async {
+    final snapshot = await _userDoc(uid).get();
+    final list =
+        (snapshot.data()?['solvedChallenges'] as List<dynamic>?) ?? const [];
+    return list.whereType<String>().toSet();
+  }
+
+  // ── Números resolvidos (formato antigo, mantido) ──────────────────────────
 
   Future<void> saveSolvedNumber(String uid, int number) async {
     await _userDoc(uid).set({

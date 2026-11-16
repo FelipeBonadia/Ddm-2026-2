@@ -16,9 +16,27 @@ class SettingsPage extends ConsumerWidget {
     Color(0xFF9B7BFF),
     Color(0xFF37BFCF),
     Color(0xFF42A97B),
+    Color(0xFFF08A3C),
+    Color(0xFFE2609A),
+    Color(0xFF3F7DE0),
+    Color(0xFFD64545),
   ];
 
-  static const _fontFamilies = ['Space Grotesk', 'DM Sans', 'Lato'];
+  /// Fontes do Google Fonts. "Arimo" é a equivalente métrica da Helvetica
+  /// (a Helvetica em si é proprietária e não existe na web).
+  static const _fontFamilies = [
+    'Roboto',
+    'EB Garamond',
+    'Arimo',
+    'Lato',
+    'Open Sans',
+    'Merriweather',
+    'Space Grotesk',
+    'DM Sans',
+  ];
+
+  static String _fontLabel(String family) =>
+      family == 'Arimo' ? 'Arimo (Helvetica)' : family;
 
   // Faixa do tamanho da fonte: de 50% a 150%, em 20 passos de 5%.
   static const _minScale = 0.5;
@@ -47,7 +65,12 @@ class SettingsPage extends ConsumerWidget {
       (_seedColors[0], l10n.settingsColorViolet),
       (_seedColors[1], l10n.settingsColorCyan),
       (_seedColors[2], l10n.settingsColorGreen),
+      (_seedColors[3], l10n.settingsColorOrange),
+      (_seedColors[4], l10n.settingsColorPink),
+      (_seedColors[5], l10n.settingsColorBlue),
+      (_seedColors[6], l10n.settingsColorRed),
     ];
+    final isCustomColor = !_seedColors.contains(preferences.seedColor);
 
     return AppFeatureFrame(
       title: l10n.settingsTitle,
@@ -56,22 +79,54 @@ class SettingsPage extends ConsumerWidget {
         children: [
           _SettingsGroup(
             title: l10n.settingsAppearance,
-            child: SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.settingsDarkTheme),
-              subtitle: Text(
-                preferences.themeMode == ThemeMode.dark
-                    ? l10n.settingsOn
-                    : l10n.settingsOff,
-                style: const TextStyle(color: AppColors.textSecondary),
-              ),
-              value: preferences.themeMode == ThemeMode.dark,
-              onChanged: (enabled) {
-                playToggle();
-                controller.setThemeMode(
-                  enabled ? ThemeMode.dark : ThemeMode.light,
-                );
-              },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.settingsThemeLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                // Começa em "Dispositivo": segue o tema claro/escuro do
+                // sistema até o usuário escolher outro.
+                SegmentedButton<ThemeMode>(
+                  showSelectedIcon: false,
+                  expandedInsets: EdgeInsets.zero,
+                  segments: [
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.system,
+                      icon: const Icon(Icons.brightness_auto_rounded, size: 18),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l10n.settingsThemeSystem, maxLines: 1),
+                      ),
+                    ),
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.light,
+                      icon: const Icon(Icons.light_mode_rounded, size: 18),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l10n.settingsThemeLight, maxLines: 1),
+                      ),
+                    ),
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.dark,
+                      icon: const Icon(Icons.dark_mode_rounded, size: 18),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l10n.settingsThemeDark, maxLines: 1),
+                      ),
+                    ),
+                  ],
+                  selected: {preferences.themeMode},
+                  onSelectionChanged: (selection) {
+                    if (selection.isNotEmpty) {
+                      playSelection();
+                      controller.setThemeMode(selection.first);
+                    }
+                  },
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 14),
@@ -125,7 +180,10 @@ class SettingsPage extends ConsumerWidget {
                   ),
                   items: [
                     for (final family in _fontFamilies)
-                      DropdownMenuItem(value: family, child: Text(family)),
+                      DropdownMenuItem(
+                        value: family,
+                        child: Text(_fontLabel(family)),
+                      ),
                   ],
                   onChanged: (family) {
                     if (family != null) {
@@ -223,6 +281,31 @@ class SettingsPage extends ConsumerWidget {
                       controller.setSeedColor(color);
                     },
                   ),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    side: BorderSide(
+                      width: isCustomColor ? 2 : 1,
+                      color: isCustomColor
+                          ? preferences.seedColor
+                          : Theme.of(context).dividerColor,
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.palette_rounded,
+                    color: isCustomColor ? preferences.seedColor : null,
+                  ),
+                  label: Text(l10n.settingsColorCustom),
+                  onPressed: () async {
+                    playSelection();
+                    final picked = await showDialog<Color>(
+                      context: context,
+                      builder: (_) =>
+                          _CustomColorDialog(initial: preferences.seedColor),
+                    );
+                    if (picked != null) controller.setSeedColor(picked);
+                  },
+                ),
               ],
             ),
           ),
@@ -503,6 +586,97 @@ class _ResetAppearanceSectionState
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+
+/// Escolha de uma cor semente qualquer, com três controles deslizantes
+/// (vermelho, verde e azul) e uma prévia.
+class _CustomColorDialog extends StatefulWidget {
+  const _CustomColorDialog({required this.initial});
+
+  final Color initial;
+
+  @override
+  State<_CustomColorDialog> createState() => _CustomColorDialogState();
+}
+
+class _CustomColorDialogState extends State<_CustomColorDialog> {
+  late double _red = widget.initial.r * 255;
+  late double _green = widget.initial.g * 255;
+  late double _blue = widget.initial.b * 255;
+
+  Color get _color =>
+      Color.fromARGB(255, _red.round(), _green.round(), _blue.round());
+
+  String get _hex =>
+      '#${_color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+
+  Widget _channel(String label, double value, Color tint, ValueChanged<double> onChanged) {
+    return Row(
+      children: [
+        SizedBox(width: 20, child: Text(label)),
+        Expanded(
+          child: Slider(
+            min: 0,
+            max: 255,
+            value: value,
+            activeColor: tint,
+            onChanged: (v) => setState(() => onChanged(v)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AlertDialog(
+      icon: const Icon(Icons.palette_rounded),
+      title: Text(l10n.settingsCustomColorTitle),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _color,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _hex,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: ThemeData.estimateBrightnessForColor(_color) ==
+                          Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _channel('R', _red, Colors.red, (v) => _red = v),
+            _channel('G', _green, Colors.green, (v) => _green = v),
+            _channel('B', _blue, Colors.blue, (v) => _blue = v),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.settingsCustomColorCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_color),
+          child: Text(l10n.settingsCustomColorApply),
+        ),
       ],
     );
   }

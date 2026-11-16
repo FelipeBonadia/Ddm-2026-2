@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../providers/auth_providers.dart';
 import '../../progress/presentation/progress_tracker.dart';
 import '../domain/game_engine.dart';
 
@@ -42,15 +44,18 @@ class GameSessionState {
     this.inputError,
     this.attempts = 0,
     this.solved = false,
+    this.allSolvedInLevel = false,
   });
 
   /// Estado de um desafio recém-começado: só o '=' no tabuleiro.
   factory GameSessionState.initial({
     required GameChallenge challenge,
     int attempts = 0,
+    bool allSolvedInLevel = false,
   }) => GameSessionState(
     challenge: challenge,
     attempts: attempts,
+    allSolvedInLevel: allSolvedInLevel,
     tokens: const [_equalityToken],
     placements: const [_equalityPlacement],
   );
@@ -68,6 +73,10 @@ class GameSessionState {
   final GameExpressionError? inputError;
   final int attempts;
   final bool solved;
+
+  /// true quando o usuário já resolveu todos os desafios do nível atual: os
+  /// desafios passam a se repetir (a UI avisa).
+  final bool allSolvedInLevel;
 
   String get expression => tokens.join(' ');
 
@@ -89,6 +98,7 @@ class GameSessionState {
     bool clearInputError = false,
     int? attempts,
     bool? solved,
+    bool? allSolvedInLevel,
   }) => GameSessionState(
     challenge: challenge ?? this.challenge,
     tokens: tokens ?? this.tokens,
@@ -99,6 +109,7 @@ class GameSessionState {
     inputError: clearInputError ? null : inputError ?? this.inputError,
     attempts: attempts ?? this.attempts,
     solved: solved ?? this.solved,
+    allSolvedInLevel: allSolvedInLevel ?? this.allSolvedInLevel,
   );
 }
 
@@ -111,9 +122,48 @@ class GameSessionController extends Notifier<GameSessionState> {
   final Set<String> _seenChallengeKeys = {};
   final ExpressionEvaluator _evaluator = ExpressionEvaluator();
 
+  /// Chaves dos desafios que o usuário atual já resolveu (vêm do Firestore
+  /// em [loadSolvedChallenges] e crescem a cada acerto).
+  final Set<String> _solvedKeys = {};
+  String? _uid;
+
   @override
-  GameSessionState build() =>
-      GameSessionState.initial(challenge: _generate(GameDifficulty.easy));
+  GameSessionState build() {
+    // Observa o usuário: ao trocar de conta o jogo recomeça do zero e não
+    // herda os desafios resolvidos da conta anterior.
+    _uid = ref.watch(currentUserProvider.select((user) => user?.uid));
+    _solvedKeys.clear();
+    _seenChallengeKeys.clear();
+    return GameSessionState.initial(
+      challenge: _generate(GameDifficulty.easy).challenge,
+    );
+  }
+
+  /// Lê no Firestore os desafios já resolvidos e, se o desafio na tela for
+  /// um deles (e o jogador ainda não mexeu nele), troca por um inédito.
+  /// Em caso de falha de rede/regras, relança o erro para a tela mostrar o
+  /// botão "Tentar novamente".
+  Future<Set<String>> loadSolvedChallenges() async {
+    final uid = _uid;
+    if (uid == null) return <String>{};
+    final solved = await ref
+        .read(firestoreServiceProvider)
+        .fetchSolvedChallenges(uid);
+    // O usuário pode ter saído enquanto a leitura estava em andamento.
+    if (uid != _uid) return <String>{};
+    _solvedKeys
+      ..clear()
+      ..addAll(solved);
+    final current = state.challenge;
+    if (!state.hasContent && _solvedKeys.contains(current.key)) {
+      final result = _generate(current.difficulty);
+      state = GameSessionState.initial(
+        challenge: result.challenge,
+        allSolvedInLevel: result.allSolved,
+      );
+    }
+    return Set.unmodifiable(_solvedKeys);
+  }
 
   // ── Validação (a UI usa isso para aceitar/recusar drops) ──────────────────
 
@@ -255,54 +305,89 @@ class GameSessionController extends Notifier<GameSessionState> {
             rightSide: state.tokensFor(EquationSide.right).join(' '),
             difficulty: state.challenge.difficulty,
           );
+      _saveSolvedChallenge(state.challenge.key);
     }
     return evaluation;
   }
 
-  void setDifficulty(GameDifficulty difficulty) {
-    state = GameSessionState.initial(
-      challenge: _generate(difficulty),
-      attempts: 0,
-    );
-  }
+  void setDifficulty(GameDifficulty difficulty) => _startNew(difficulty);
 
-  void skipChallenge() {
-    state = GameSessionState.initial(
-      challenge: _generate(state.challenge.difficulty),
-      attempts: 0,
-    );
-  }
+  /// Pula o desafio atual (sem marcá-lo como resolvido).
+  void skipChallenge() => _startNew(state.challenge.difficulty);
 
   void nextChallenge() {
     if (!state.solved) return;
+    _startNew(state.challenge.difficulty);
+  }
+
+  void _startNew(GameDifficulty difficulty) {
+    final result = _generate(difficulty);
     state = GameSessionState.initial(
-      challenge: _generate(state.challenge.difficulty),
+      challenge: result.challenge,
       attempts: 0,
+      allSolvedInLevel: result.allSolved,
     );
   }
 
-  /// Gera um desafio inédito. Com números de 1 a 9 há um conjunto finito de
-  /// desafios por nível; quando todos já foram vistos, o gerador lança
-  /// StateError. Nesse caso, esquece os já vistos DESSE nível e recomeça o
-  /// ciclo, em vez de travar o jogo.
-  GameChallenge _generate(GameDifficulty difficulty) {
-    GameChallenge challenge;
-    try {
-      challenge = _generator.generate(
-        difficulty: difficulty,
-        excludedChallengeKeys: _seenChallengeKeys,
-      );
-    } on StateError {
-      _seenChallengeKeys.removeWhere(
-        (key) => key.startsWith('${difficulty.name}:'),
-      );
-      challenge = _generator.generate(
-        difficulty: difficulty,
-        excludedChallengeKeys: _seenChallengeKeys,
-      );
+  /// Grava o desafio resolvido no Firestore e atualiza a lista local, sem
+  /// travar a interface esperando o servidor.
+  void _saveSolvedChallenge(String key) {
+    _solvedKeys.add(key);
+    final uid = _uid;
+    if (uid == null) return;
+    ref
+        .read(firestoreServiceProvider)
+        .saveSolvedChallenge(uid, key)
+        .then((_) {
+          // O jogador pode ter saído da conta antes do servidor responder.
+          if (ref.mounted) ref.invalidate(solvedChallengesProvider);
+        })
+        .catchError((Object error) {
+          debugPrint('Erro ao salvar desafio resolvido: $error');
+        });
+  }
+
+  /// Gera um desafio inédito: que não foi visto nesta sessão e que o usuário
+  /// ainda não resolveu (lista vinda do Firestore). Com números de 1 a 9 há
+  /// um conjunto finito de desafios por nível; se todos já foram resolvidos,
+  /// repete os desafios (ignorando os resolvidos) e devolve `allSolved` =
+  /// true para a tela avisar o jogador, em vez de travar o jogo.
+  ({GameChallenge challenge, bool allSolved}) _generate(
+    GameDifficulty difficulty,
+  ) {
+    final prefix = '${difficulty.name}:';
+
+    GameChallenge? tryGenerate(Set<String> excluded) {
+      try {
+        return _generator.generate(
+          difficulty: difficulty,
+          excludedChallengeKeys: excluded,
+        );
+      } on StateError {
+        return null;
+      }
+    }
+
+    // 1) Inédito na sessão e ainda não resolvido.
+    var challenge = tryGenerate({..._seenChallengeKeys, ..._solvedKeys});
+    var allSolved = false;
+    if (challenge == null) {
+      // 2) Esgotou os não vistos: esquece os vistos DESTE nível, mas
+      // continua evitando os já resolvidos.
+      _seenChallengeKeys.removeWhere((key) => key.startsWith(prefix));
+      challenge = tryGenerate({..._seenChallengeKeys, ..._solvedKeys});
+    }
+    if (challenge == null) {
+      // 3) O usuário resolveu todos os desafios do nível: repete.
+      allSolved = true;
+      challenge = tryGenerate(_seenChallengeKeys);
+      if (challenge == null) {
+        _seenChallengeKeys.removeWhere((key) => key.startsWith(prefix));
+        challenge = _generator.generate(difficulty: difficulty);
+      }
     }
     _seenChallengeKeys.add(challenge.key);
-    return challenge;
+    return (challenge: challenge, allSolved: allSolved);
   }
 
   // ── Internos ──────────────────────────────────────────────────────────────

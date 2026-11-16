@@ -18,6 +18,9 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
     final soundService = ref.read(appSoundServiceProvider);
     final soundEnabled = ref.watch(soundEnabledProvider);
@@ -76,9 +79,17 @@ class HomePage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Color.alphaBlend(
+                    colorScheme.primary.withValues(alpha: isDark ? 0.08 : 0.04),
+                    colorScheme.surface,
+                  ),
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: Theme.of(context).dividerColor),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(
+                      alpha: isDark ? 0.35 : 0.25,
+                    ),
+                    width: 1.5,
+                  ),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -87,8 +98,8 @@ class HomePage extends ConsumerWidget {
                       children: [
                         Text(
                           l10n.homeChallengeTitle,
-                          style: const TextStyle(
-                            color: AppColors.violetBright,
+                          style: TextStyle(
+                            color: colorScheme.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.1,
@@ -197,7 +208,7 @@ class HomePage extends ConsumerWidget {
                         width: width,
                         child: _SummaryTile(
                           icon: Icons.check_circle_outline_rounded,
-                          tint: AppColors.violetBright,
+                          tint: colorScheme.primary,
                           label: l10n.homeChallenges,
                           value: '${progress.solvedCount}',
                         ),
@@ -267,21 +278,46 @@ class _NumberTile extends StatelessWidget {
   final int value;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 52,
-    height: 52,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: AppColors
-          .violetDark, //Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: Theme.of(context).dividerColor),
-    ),
-    child: Text(
-      '$value',
-      style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bg = isDark
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: 0.18),
+            scheme.surfaceContainerHigh,
+          )
+        : scheme.primaryContainer;
+    final fg = scheme.onPrimaryContainer;
+    final border = scheme.primary.withValues(alpha: isDark ? 0.8 : 0.65);
+
+    return Container(
+      width: 52,
+      height: 52,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: border, width: 1.8),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: isDark ? 0.2 : 0.12),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        '$value',
+        style: TextStyle(
+          color: fg,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
 }
 
 class _SummaryTile extends StatelessWidget {
@@ -367,8 +403,8 @@ class _StepTile extends StatelessWidget {
             children: [
               Text(
                 number,
-                style: const TextStyle(
-                  color: AppColors.violetBright,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),

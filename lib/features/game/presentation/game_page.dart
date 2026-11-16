@@ -8,6 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
+import '../../../widgets/app_loading_indicator.dart';
 import '../application/game_session.dart';
 import '../domain/game_engine.dart';
 
@@ -28,6 +29,26 @@ class _GamePageState extends ConsumerState<GamePage> {
   /// ele muda — padrão barato sem coordenador externo.
   int _returnTick = 0;
 
+  /// Leitura dos desafios já resolvidos no Firestore. O jogo só aparece
+  /// depois dela, para nunca mostrar um desafio que o usuário já resolveu.
+  late Future<Set<String>> _solvedFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _solvedFuture = ref
+        .read(gameSessionProvider.notifier)
+        .loadSolvedChallenges();
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _solvedFuture = ref
+          .read(gameSessionProvider.notifier)
+          .loadSolvedChallenges();
+    });
+  }
+
   void _setDragging(bool value) {
     if (!mounted || _isDragging == value) return;
     setState(() => _isDragging = value);
@@ -42,12 +63,52 @@ class _GamePageState extends ConsumerState<GamePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    return FutureBuilder<Set<String>>(
+      future: _solvedFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return AppLoadingIndicator(message: l10n.gameLoading);
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.cloud_off_rounded,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(l10n.gameLoadError, textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _retryLoad,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(l10n.gameRetry),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return _buildGame(context);
+      },
+    );
+  }
+
+  Widget _buildGame(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final game = ref.watch(gameSessionProvider);
     final controller = ref.read(gameSessionProvider.notifier);
     final soundService = ref.read(appSoundServiceProvider);
     final soundEnabled = ref.watch(soundEnabledProvider);
     final colorScheme = Theme.of(context).colorScheme;
-    final feedback = _feedbackText(l10n, game);
+    final feedback =
+        _feedbackText(l10n, game) ??
+        (game.allSolvedInLevel ? l10n.gameAllSolved : null);
 
     // O '=' é sempre presente (o jogo começa com ele no tabuleiro), então só
     // há o que pré-visualizar quando existe algo além dele. Os tokens são
@@ -281,7 +342,10 @@ class _GamePageState extends ConsumerState<GamePage> {
                           ? const SizedBox.shrink()
                           : _FeedbackMessage(
                               text: feedback,
-                              success: game.evaluation?.isCorrect == true,
+                              success:
+                                  game.evaluation?.isCorrect == true ||
+                                  (game.evaluation == null &&
+                                      game.allSolvedInLevel),
                             ),
                     ),
                   ),

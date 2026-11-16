@@ -1160,6 +1160,108 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Desfazer'**
   String get settingsUndo;
+
+  /// No description provided for @settingsThemeLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tema'**
+  String get settingsThemeLabel;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dispositivo'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In pt, this message translates to:
+  /// **'Claro'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escuro'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsColorOrange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Laranja'**
+  String get settingsColorOrange;
+
+  /// No description provided for @settingsColorPink.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rosa'**
+  String get settingsColorPink;
+
+  /// No description provided for @settingsColorBlue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Azul'**
+  String get settingsColorBlue;
+
+  /// No description provided for @settingsColorRed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vermelho'**
+  String get settingsColorRed;
+
+  /// No description provided for @settingsColorCustom.
+  ///
+  /// In pt, this message translates to:
+  /// **'Personalizada'**
+  String get settingsColorCustom;
+
+  /// No description provided for @settingsCustomColorTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolha uma cor'**
+  String get settingsCustomColorTitle;
+
+  /// No description provided for @settingsCustomColorApply.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aplicar'**
+  String get settingsCustomColorApply;
+
+  /// No description provided for @settingsCustomColorCancel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get settingsCustomColorCancel;
+
+  /// No description provided for @gameLoading.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando seus desafios…'**
+  String get gameLoading;
+
+  /// No description provided for @gameLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar seu progresso.'**
+  String get gameLoadError;
+
+  /// No description provided for @gameRetry.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar novamente'**
+  String get gameRetry;
+
+  /// No description provided for @gameAllSolved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você resolveu todos os desafios deste nível! Eles vão se repetir.'**
+  String get gameAllSolved;
+
+  /// No description provided for @progressSolvedNumbers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Números resolvidos'**
+  String get progressSolvedNumbers;
 }
 
 class _AppLocalizationsDelegate

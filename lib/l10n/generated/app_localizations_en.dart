@@ -585,4 +585,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUndo => 'Undo';
+
+  @override
+  String get settingsThemeLabel => 'Theme';
+
+  @override
+  String get settingsThemeSystem => 'Device';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsColorOrange => 'Orange';
+
+  @override
+  String get settingsColorPink => 'Pink';
+
+  @override
+  String get settingsColorBlue => 'Blue';
+
+  @override
+  String get settingsColorRed => 'Red';
+
+  @override
+  String get settingsColorCustom => 'Custom';
+
+  @override
+  String get settingsCustomColorTitle => 'Pick a color';
+
+  @override
+  String get settingsCustomColorApply => 'Apply';
+
+  @override
+  String get settingsCustomColorCancel => 'Cancel';
+
+  @override
+  String get gameLoading => 'Loading your challenges…';
+
+  @override
+  String get gameLoadError => 'Could not load your progress.';
+
+  @override
+  String get gameRetry => 'Try again';
+
+  @override
+  String get gameAllSolved =>
+      'You solved every challenge in this level! They will now repeat.';
+
+  @override
+  String get progressSolvedNumbers => 'Solved numbers';
 }

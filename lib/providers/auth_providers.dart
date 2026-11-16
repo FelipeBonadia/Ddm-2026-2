@@ -22,10 +22,12 @@ final currentUserProvider = Provider<User?>((ref) {
       ref.watch(authServiceProvider).currentUser;
 });
 
-final solvedNumbersProvider = FutureProvider<Set<int>>((ref) async {
+/// Chaves dos desafios que o usuário atual já resolveu (lidas do Firestore).
+/// Use `ref.invalidate` depois de salvar um desafio para recarregar.
+final solvedChallengesProvider = FutureProvider<Set<String>>((ref) async {
   final user = ref.watch(currentUserProvider);
-  if (user == null) return <int>{};
-  return ref.watch(firestoreServiceProvider).fetchSolvedNumbers(user.uid);
+  if (user == null) return <String>{};
+  return ref.watch(firestoreServiceProvider).fetchSolvedChallenges(user.uid);
 });
 
 class LastRouteNotifier extends Notifier<String?> {

@@ -52,7 +52,7 @@ class InterfacePreferencesNotifier extends Notifier<InterfacePreferences> {
     final prefs = await SharedPreferences.getInstance();
     final localeValue = prefs.getString(_localeKey);
     final soundEnabled = prefs.getBool(_soundEnabledKey) ?? false;
-    final themeModeValue = prefs.getString(_themeModeKey) ?? 'dark';
+    final themeModeValue = prefs.getString(_themeModeKey) ?? 'system';
     final textScale = prefs.getDouble(_textScaleKey) ?? 1.0;
     final fontFamily = prefs.getString(_fontFamilyKey) ?? 'Space Grotesk';
     final seedColorValue =

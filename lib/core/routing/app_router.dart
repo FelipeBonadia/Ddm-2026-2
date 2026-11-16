@@ -29,11 +29,30 @@ abstract final class AppRoutes {
 final ValueNotifier<bool> authRedirectPaused = ValueNotifier<bool>(false);
 
 const _lastRouteKey = 'last_route';
+
+/// Só as páginas principais são lembradas (login e '/' não).
+const _persistableRoutes = <String>{
+  AppRoutes.home,
+  AppRoutes.game,
+  AppRoutes.progress,
+  AppRoutes.settings,
+};
+
 String? _cachedInitialRoute;
 
+/// Lê a última página salva. Deve ser chamada em `main()` antes de criar o
+/// roteador, pois `initialLocation` é definido na criação.
 Future<void> loadPersistedRoute() async {
   final prefs = await SharedPreferences.getInstance();
-  _cachedInitialRoute = prefs.getString(_lastRouteKey);
+  final saved = prefs.getString(_lastRouteKey);
+  _cachedInitialRoute = _persistableRoutes.contains(saved) ? saved : null;
+}
+
+void _persistLocation(String location) {
+  if (!_persistableRoutes.contains(location)) return;
+  SharedPreferences.getInstance().then(
+    (prefs) => prefs.setString(_lastRouteKey, location),
+  );
 }
 
 class _RouterRefreshNotifier extends ChangeNotifier {
@@ -50,29 +69,6 @@ class _RouterRefreshNotifier extends ChangeNotifier {
   }
 }
 
-class _RoutePersistenceObserver extends NavigatorObserver {
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
-    _save(route.settings.name);
-  }
-
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    _save(newRoute?.settings.name);
-  }
-
-  void _save(String? name) {
-    if (name == null || name.isEmpty) return;
-    if (name == AppRoutes.login) return;
-    if (name == '/') return;
-    SharedPreferences.getInstance().then(
-      (prefs) => prefs.setString(_lastRouteKey, name),
-    );
-  }
-}
-
 GoRouter createAppRouter({FirebaseAuth? auth}) {
   Stream<User?>? authChanges;
   User? Function()? currentUserGetter;
@@ -84,12 +80,11 @@ GoRouter createAppRouter({FirebaseAuth? auth}) {
     // Ambiente de teste sem Firebase inicializado.
   }
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: _cachedInitialRoute ?? AppRoutes.home,
     refreshListenable: authChanges != null
         ? _RouterRefreshNotifier(authChanges)
         : null,
-    observers: [_RoutePersistenceObserver()],
     redirect: (context, state) {
       if (authRedirectPaused.value) return null;
       if (currentUserGetter == null) return null;
@@ -127,4 +122,15 @@ GoRouter createAppRouter({FirebaseAuth? auth}) {
       ),
     ],
   );
+
+  // Um NavigatorObserver na raiz não enxerga as páginas dentro do ShellRoute;
+  // por isso salvamos a localização a cada mudança do roteador.
+  router.routerDelegate.addListener(() {
+    try {
+      _persistLocation(router.routerDelegate.currentConfiguration.uri.path);
+    } catch (_) {
+      // Ainda sem rota resolvida (início do app): nada a salvar.
+    }
+  });
+  return router;
 }
