@@ -144,6 +144,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                     metrics: metrics,
                     enabled: canAccept(piece),
                     isUsed: isUsed,
+                    onTap: () => addPiece(piece),
                     onDragStarted: () => _setDragging(true),
                     onDragEnded: () => _setDragging(false),
                   ),
@@ -705,7 +706,9 @@ class _TileMetrics {
 /// Row isso vira largura/altura total) — era esse o bug das caixas gigantes.
 /// Aqui o `Center(widthFactor: 1, heightFactor: 1)` faz a caixa abraçar o texto,
 /// respeitando só o tamanho mínimo.
-class _TileFace extends StatelessWidget {
+/// A "caixinha" de uma peça com efeito de hover, indicação de clique e
+/// transição suave de escala e elevação.
+class _TileFace extends StatefulWidget {
   const _TileFace({
     required this.label,
     required this.style,
@@ -723,71 +726,133 @@ class _TileFace extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<_TileFace> createState() => _TileFaceState();
+}
+
+class _TileFaceState extends State<_TileFace> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isInteractive = widget.enabled && !widget.isUsed;
+    final hovered = _isHovered && isInteractive;
 
     Color bg;
     Color fg;
     Color border;
 
-    if (isUsed) {
+    if (widget.isUsed) {
       bg = scheme.surfaceContainerLow.withValues(alpha: 0.3);
       fg = scheme.onSurface.withValues(alpha: 0.25);
       border = scheme.outlineVariant.withValues(alpha: 0.25);
     } else {
-      switch (style) {
+      switch (widget.style) {
         case _TileStyle.equality:
-          bg = Colors.amber.withValues(alpha: 0.2);
+          bg = Colors.amber.withValues(alpha: hovered ? 0.32 : 0.2);
           fg = Colors.amber.shade300;
-          border = Colors.amber.shade600;
+          border = hovered ? Colors.amber.shade400 : Colors.amber.shade600;
         case _TileStyle.number:
-          bg = scheme.primaryContainer;
+          bg = hovered
+              ? Color.alphaBlend(
+                  scheme.primary.withValues(alpha: 0.15),
+                  scheme.primaryContainer,
+                )
+              : scheme.primaryContainer;
           fg = scheme.onPrimaryContainer;
-          border = scheme.primary.withValues(alpha: 0.8);
+          border = hovered
+              ? scheme.primary
+              : scheme.primary.withValues(alpha: 0.8);
         case _TileStyle.operation:
           bg = Color.alphaBlend(
-            AppColors.cyan.withValues(alpha: 0.14),
+            AppColors.cyan.withValues(alpha: hovered ? 0.25 : 0.14),
             scheme.surface,
           );
           fg = AppColors.cyan;
-          border = AppColors.cyan.withValues(alpha: 0.6);
+          border = hovered
+              ? AppColors.cyan
+              : AppColors.cyan.withValues(alpha: 0.6);
         case _TileStyle.parenthesis:
-          bg = scheme.surfaceContainerHighest;
+          bg = hovered
+              ? scheme.surfaceContainerHigh
+              : scheme.surfaceContainerHighest;
           fg = scheme.onSurface;
-          border = scheme.outlineVariant;
+          border = hovered
+              ? scheme.primary.withValues(alpha: 0.7)
+              : scheme.outlineVariant;
       }
     }
 
-    return Opacity(
-      opacity: (enabled || isUsed) ? 1.0 : 0.45,
-      child: Material(
-        color: bg,
-        elevation: (enabled && !isUsed) ? 1.5 : 0,
-        shadowColor: Colors.black,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: border, width: 1.2),
-        ),
-        child: InkWell(
-          onTap: (enabled && !isUsed) ? onTap : null,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: metrics.minWidth,
-              minHeight: metrics.height,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: metrics.hPad),
-              child: Center(
-                widthFactor: 1,
-                heightFactor: 1,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: fg,
-                    fontSize: metrics.fontSize,
-                    fontWeight: FontWeight.bold,
-                    height: 1.1,
+    final double elevation = hovered ? 4.5 : (isInteractive ? 1.5 : 0.0);
+    final double scale = hovered ? 1.07 : 1.0;
+
+    return MouseRegion(
+      cursor: isInteractive
+          ? SystemMouseCursors.click
+          : (widget.isUsed
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.forbidden),
+      onEnter: (_) {
+        if (mounted && isInteractive) setState(() => _isHovered = true);
+      },
+      onExit: (_) {
+        if (mounted) setState(() => _isHovered = false);
+      },
+      child: AnimatedScale(
+        scale: scale,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        child: Opacity(
+          opacity: (widget.enabled || widget.isUsed) ? 1.0 : 0.45,
+          child: AnimatedPhysicalModel(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10),
+            elevation: elevation,
+            color: bg,
+            shadowColor: Colors.black.withValues(alpha: hovered ? 0.35 : 0.2),
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutCubic,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 140),
+              curve: Curves.easeOutCubic,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: border,
+                  width: hovered ? 1.8 : 1.2,
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.circular(10),
+                child: InkWell(
+                  onTap: isInteractive ? widget.onTap : null,
+                  hoverColor: Colors.transparent,
+                  splashColor: scheme.primary.withValues(alpha: 0.18),
+                  highlightColor: scheme.primary.withValues(alpha: 0.1),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: widget.metrics.minWidth,
+                      minHeight: widget.metrics.height,
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: widget.metrics.hPad),
+                      child: Center(
+                        widthFactor: 1,
+                        heightFactor: 1,
+                        child: Text(
+                          widget.label,
+                          style: TextStyle(
+                            color: fg,
+                            fontSize: widget.metrics.fontSize,
+                            fontWeight: FontWeight.bold,
+                            height: 1.1,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -808,6 +873,7 @@ class _DraggableTile extends StatelessWidget {
     required this.metrics,
     required this.enabled,
     required this.isUsed,
+    this.onTap,
     required this.onDragStarted,
     required this.onDragEnded,
   });
@@ -817,6 +883,7 @@ class _DraggableTile extends StatelessWidget {
   final _TileMetrics metrics;
   final bool enabled;
   final bool isUsed;
+  final VoidCallback? onTap;
   final VoidCallback onDragStarted;
   final VoidCallback onDragEnded;
 
@@ -828,10 +895,11 @@ class _DraggableTile extends StatelessWidget {
       metrics: metrics,
       enabled: enabled,
       isUsed: isUsed,
+      onTap: onTap,
     );
 
-    if (!enabled) {
-      return MouseRegion(cursor: SystemMouseCursors.basic, child: face);
+    if (!enabled || isUsed) {
+      return face;
     }
 
     return Draggable<_GamePiece>(
@@ -858,7 +926,7 @@ class _DraggableTile extends StatelessWidget {
           enabled: false,
         ),
       ),
-      child: MouseRegion(cursor: SystemMouseCursors.grab, child: face),
+      child: face,
     );
   }
 }

@@ -73,16 +73,27 @@ class _RoutePersistenceObserver extends NavigatorObserver {
   }
 }
 
-GoRouter createAppRouter() {
+GoRouter createAppRouter({FirebaseAuth? auth}) {
+  Stream<User?>? authChanges;
+  User? Function()? currentUserGetter;
+  try {
+    final firebaseAuth = auth ?? FirebaseAuth.instance;
+    authChanges = firebaseAuth.authStateChanges();
+    currentUserGetter = () => firebaseAuth.currentUser;
+  } catch (_) {
+    // Ambiente de teste sem Firebase inicializado.
+  }
+
   return GoRouter(
     initialLocation: _cachedInitialRoute ?? AppRoutes.home,
-    refreshListenable: _RouterRefreshNotifier(
-      FirebaseAuth.instance.authStateChanges(),
-    ),
+    refreshListenable: authChanges != null
+        ? _RouterRefreshNotifier(authChanges)
+        : null,
     observers: [_RoutePersistenceObserver()],
     redirect: (context, state) {
       if (authRedirectPaused.value) return null;
-      final user = FirebaseAuth.instance.currentUser;
+      if (currentUserGetter == null) return null;
+      final user = currentUserGetter();
       final atLogin = state.matchedLocation == AppRoutes.login;
       if (user == null) return atLogin ? null : AppRoutes.login;
       return atLogin ? AppRoutes.home : null;

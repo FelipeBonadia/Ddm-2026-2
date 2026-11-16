@@ -143,7 +143,7 @@ class ProgressState {
   /// partida — ajuste como quiser. O que importa é que ela nasce de
   /// desafios reais, não de um número fixo na tela.
   int get score =>
-      entries.fold(0, (sum, entry) => sum + _pointsFor(entry.difficulty));
+      entries.fold(0, (total, entry) => total + _pointsFor(entry.difficulty));
 
   /// `switch` exaustivo: um nível novo no enum vira erro de compilação
   /// aqui, em vez de ficar sem pontuação em silêncio.

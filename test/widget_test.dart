@@ -5,6 +5,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:math_puzzle_app/app.dart';
 import 'package:math_puzzle_app/features/game/application/game_session.dart';
 import 'package:math_puzzle_app/features/game/presentation/game_page.dart';
+import 'package:math_puzzle_app/providers/auth_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -203,6 +204,15 @@ Future<void> _pumpApp(WidgetTester tester, Size size) async {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(const ProviderScope(child: MathPuzzleApp()));
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => Stream.value(null)),
+        currentUserProvider.overrideWithValue(null),
+        solvedNumbersProvider.overrideWith((ref) => Future.value(<int>{})),
+      ],
+      child: const MathPuzzleApp(),
+    ),
+  );
   await tester.pumpAndSettle();
 }

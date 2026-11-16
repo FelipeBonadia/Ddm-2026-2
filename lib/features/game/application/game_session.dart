@@ -218,6 +218,8 @@ class GameSessionController extends Notifier<GameSessionState> {
 
   // ── Wrappers de compatibilidade ───────────────────────────────────────────
 
+  bool selectNumber(int index) => addNumber(index);
+  bool selectOperation(GameOperation operation) => addOperation(operation);
   bool dropNumber(int index, [EquationSide? side]) => addNumber(index);
   bool dropOperation(GameOperation operation, [EquationSide? side]) =>
       addOperation(operation);

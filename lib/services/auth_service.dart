@@ -2,22 +2,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  AuthService({FirebaseAuth? auth, GoogleSignIn? googleSignIn})
-    : _auth = auth ?? FirebaseAuth.instance,
-      _googleSignIn = googleSignIn ?? GoogleSignIn();
+  AuthService({this.auth, GoogleSignIn? googleSignIn})
+    : _googleSignIn = googleSignIn ?? GoogleSignIn();
 
-  final FirebaseAuth _auth;
+  final FirebaseAuth? auth;
   final GoogleSignIn _googleSignIn;
 
-  User? get currentUser => _auth.currentUser;
+  FirebaseAuth get _safeAuth => auth ?? FirebaseAuth.instance;
 
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  User? get currentUser {
+    try {
+      return _safeAuth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Stream<User?> get authStateChanges {
+    try {
+      return _safeAuth.authStateChanges();
+    } catch (_) {
+      return const Stream.empty();
+    }
+  }
 
   Future<UserCredential> signInWithEmail({
     required String email,
     required String password,
   }) {
-    return _auth.signInWithEmailAndPassword(
+    return _safeAuth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password,
     );
@@ -27,7 +40,7 @@ class AuthService {
     required String email,
     required String password,
   }) {
-    return _auth.createUserWithEmailAndPassword(
+    return _safeAuth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password,
     );
@@ -50,15 +63,15 @@ class AuthService {
       idToken: googleAuth.idToken,
     );
 
-    return _auth.signInWithCredential(credential);
+    return _safeAuth.signInWithCredential(credential);
   }
 
   Future<void> sendPasswordResetEmail(String email) {
-    return _auth.sendPasswordResetEmail(email: email.trim());
+    return _safeAuth.sendPasswordResetEmail(email: email.trim());
   }
 
   Future<void> signOut() async {
     await _googleSignIn.signOut();
-    await _auth.signOut();
+    await _safeAuth.signOut();
   }
 }
