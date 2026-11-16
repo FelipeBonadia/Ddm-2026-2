@@ -24,22 +24,25 @@ void main() {
 
     final gameContext = tester.element(find.byType(GamePage));
     final container = ProviderScope.containerOf(gameContext);
-    final controller = container.read(gameSessionProvider.notifier);
     expect(container.read(gameSessionProvider).challenge.numbers, hasLength(4));
 
+    // Clique na paleta não adiciona peça (apenas arrasto é permitido)
     await tester.tap(find.byKey(const ValueKey('game-number-0')));
-    await tester.tap(find.byKey(const ValueKey('game-operation-add')));
-    await tester.tap(find.byKey(const ValueKey('game-number-1')));
-    await tester.tap(find.byKey(const ValueKey('game-equality')));
-    await tester.tap(find.byKey(const ValueKey('game-number-2')));
-    await tester.tap(find.byKey(const ValueKey('game-operation-add')));
-    await tester.tap(find.byKey(const ValueKey('game-number-3')));
+    await tester.pumpAndSettle();
+    expect(container.read(gameSessionProvider).tokens, hasLength(1));
+    expect(container.read(gameSessionProvider).usedNumberIndexes, isEmpty);
+
+    // Arrasto adiciona ao tabuleiro
+    final board = find.byKey(const ValueKey('game-equation-board'));
+    final num0 = find.byKey(const ValueKey('game-number-0'));
+    final gesture = await tester.startGesture(tester.getCenter(num0));
+    await gesture.moveTo(tester.getCenter(board));
+    await gesture.up();
     await tester.pumpAndSettle();
 
     final state = container.read(gameSessionProvider);
-    expect(state.usedNumberIndexes, {0, 1, 2, 3});
-    expect(controller.selectNumber(0), isFalse);
-    expect(controller.checkAnswer()?.isValid, isTrue);
+    expect(state.usedNumberIndexes, {0});
+    expect(state.tokens, hasLength(2));
     expect(tester.takeException(), isNull);
   });
 

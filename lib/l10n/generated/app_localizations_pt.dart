@@ -149,7 +149,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get gameExpressionPlaceholder => 'Monte sua expressão';
 
   @override
-  String get gameBoardEmptyHint => 'Arraste ou toque para adicionar à equação';
+  String get gameBoardEmptyHint =>
+      'Arraste as peças para cá para montar a equação';
 
   @override
   String get gameRemoveTokenHint => 'Toque para remover';
@@ -368,7 +369,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get helpMessage =>
-      'Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nToque em uma peça do tabuleiro para removê-la e use Pular se um desafio estiver difícil demais.';
+      'Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nPontuação por desafio resolvido:\n• Fácil: 10 pontos\n• Intermediário: 20 pontos\n• Avançado: 30 pontos\n• Difícil: 40 pontos\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nArraste as peças para o tabuleiro, toque em uma peça colocada para removê-la e use Pular se um desafio estiver difícil demais.';
 
   @override
   String get helpAction => 'Entendi';
@@ -935,7 +936,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get helpMessage =>
-      'Use os quatro números do desafio e combine operações matemáticas para alcançar o resultado indicado. Organize sua expressão antes de conferir.';
+      'Use cada um dos quatro números uma vez e monte uma igualdade. O sinal = já está no tabuleiro.\n\nPontuação por desafio resolvido:\n• Fácil: 10 pontos\n• Intermediário: 20 pontos\n• Avançado: 30 pontos\n• Difícil: 40 pontos\n\nOperadores por dificuldade:\n• Fácil: + − × ÷, parênteses, √, ∛, !, **, |x|, ⌊x⌋ e ⌈x⌉. É o único nível que permite divisão não inteira (5/2).\n• Intermediário: o mesmo, sem base e teto.\n• Avançado: + − × ÷, parênteses, √, ! e |x|.\n• Difícil: + − × ÷, parênteses e |x|.\n\nAs funções recebem um grupo, √ (8 + 1), ou um único número, √ 9. Um sinal de menos antes de um grupo o inverte: −(2 − 5) = 3.\n\nArraste as peças para o tabuleiro, toque em uma peça colocada para removê-la e use Pular se um desafio estiver difícil demais.';
 
   @override
   String get helpAction => 'Entendi';

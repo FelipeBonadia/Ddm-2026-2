@@ -205,7 +205,6 @@ class _GamePageState extends ConsumerState<GamePage> {
                     metrics: metrics,
                     enabled: canAccept(piece),
                     isUsed: isUsed,
-                    onTap: () => addPiece(piece),
                     onDragStarted: () => _setDragging(true),
                     onDragEnded: () => _setDragging(false),
                   ),
@@ -655,8 +654,8 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) => Text(
     text,
     textAlign: TextAlign.center,
-    style: const TextStyle(
-      color: AppColors.cyan,
+    style: TextStyle(
+      color: Theme.of(context).colorScheme.primary,
       fontSize: 11,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.6,
@@ -813,9 +812,12 @@ class _TileFaceState extends State<_TileFace> {
     } else {
       switch (widget.style) {
         case _TileStyle.equality:
-          bg = Colors.amber.withValues(alpha: hovered ? 0.32 : 0.2);
-          fg = Colors.amber.shade300;
-          border = hovered ? Colors.amber.shade400 : Colors.amber.shade600;
+          // Terciário do Material3: contraste garantido em claro e escuro.
+          bg = scheme.tertiaryContainer.withValues(alpha: hovered ? 0.9 : 0.65);
+          fg = scheme.onTertiaryContainer;
+          border = hovered
+              ? scheme.tertiary
+              : scheme.tertiary.withValues(alpha: 0.7);
         case _TileStyle.number:
           bg = hovered
               ? Color.alphaBlend(
@@ -829,13 +831,13 @@ class _TileFaceState extends State<_TileFace> {
               : scheme.primary.withValues(alpha: 0.8);
         case _TileStyle.operation:
           bg = Color.alphaBlend(
-            AppColors.cyan.withValues(alpha: hovered ? 0.25 : 0.14),
+            scheme.primary.withValues(alpha: hovered ? 0.18 : 0.08),
             scheme.surface,
           );
-          fg = AppColors.cyan;
+          fg = scheme.primary;
           border = hovered
-              ? AppColors.cyan
-              : AppColors.cyan.withValues(alpha: 0.6);
+              ? scheme.primary
+              : scheme.primary.withValues(alpha: 0.5);
         case _TileStyle.parenthesis:
           bg = hovered
               ? scheme.surfaceContainerHigh
@@ -850,12 +852,19 @@ class _TileFaceState extends State<_TileFace> {
     final double elevation = hovered ? 4.5 : (isInteractive ? 1.5 : 0.0);
     final double scale = hovered ? 1.07 : 1.0;
 
+    final MouseCursor cursor;
+    if (!isInteractive) {
+      cursor = widget.isUsed
+          ? SystemMouseCursors.basic
+          : SystemMouseCursors.forbidden;
+    } else if (widget.onTap != null) {
+      cursor = SystemMouseCursors.click;
+    } else {
+      cursor = SystemMouseCursors.grab;
+    }
+
     return MouseRegion(
-      cursor: isInteractive
-          ? SystemMouseCursors.click
-          : (widget.isUsed
-              ? SystemMouseCursors.basic
-              : SystemMouseCursors.forbidden),
+      cursor: cursor,
       onEnter: (_) {
         if (mounted && isInteractive) setState(() => _isHovered = true);
       },
@@ -937,7 +946,6 @@ class _DraggableTile extends StatelessWidget {
     required this.metrics,
     required this.enabled,
     required this.isUsed,
-    this.onTap,
     required this.onDragStarted,
     required this.onDragEnded,
   });
@@ -947,7 +955,6 @@ class _DraggableTile extends StatelessWidget {
   final _TileMetrics metrics;
   final bool enabled;
   final bool isUsed;
-  final VoidCallback? onTap;
   final VoidCallback onDragStarted;
   final VoidCallback onDragEnded;
 
@@ -959,7 +966,8 @@ class _DraggableTile extends StatelessWidget {
       metrics: metrics,
       enabled: enabled,
       isUsed: isUsed,
-      onTap: onTap,
+      // Apenas arrasto é permitido na paleta; clique desabilitado.
+      onTap: null,
     );
 
     if (!enabled || isUsed) {

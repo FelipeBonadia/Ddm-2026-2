@@ -105,6 +105,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Widget _buildLoginPanel(BuildContext context, {required bool showTeam}) {
     final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     final locale = ref.watch(
       interfacePreferencesProvider.select((value) => value.locale),
     );
@@ -122,12 +123,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            color: AppColors.violet,
+            color: scheme.primary,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.functions_rounded,
-            color: AppColors.background,
+            color: scheme.onPrimary,
             size: 28,
           ),
         ),
@@ -135,7 +136,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         Text(
           l10n.appLabel,
           style: Theme.of(context).textTheme.titleMedium
-              ?.copyWith(color: AppColors.cyan, fontWeight: FontWeight.w700),
+              ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 9),
         Text(
@@ -146,7 +147,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         const SizedBox(height: 10),
         Text(
           l10n.loginSubtitle,
-          style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+          style: TextStyle(
+            color: scheme.onSurfaceVariant,
+            height: 1.5,
+          ),
         ),
         const SizedBox(height: 24),
         // Google (firebase_ui_oauth_google). O texto do botão vem do
@@ -176,8 +180,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         const SizedBox(height: 24),
         Text(
           l10n.loginLanguage,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
+          style: TextStyle(
+            color: scheme.onSurfaceVariant,
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.9,
@@ -232,14 +236,16 @@ class _BrandPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 470),
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,12 +257,12 @@ class _BrandPanel extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.violet,
+                  color: scheme.primary,
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.functions_rounded,
-                  color: AppColors.background,
+                  color: scheme.onPrimary,
                   size: 27,
                 ),
               ),
@@ -275,8 +281,8 @@ class _BrandPanel extends StatelessWidget {
               children: [
                 Text(
                   l10n.loginBrandTag,
-                  style: const TextStyle(
-                    color: AppColors.cyan,
+                  style: TextStyle(
+                    color: scheme.primary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,
@@ -306,12 +312,13 @@ class _TeamPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: AppColors.surfaceRaised,
+        color: scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -319,8 +326,8 @@ class _TeamPanel extends StatelessWidget {
         children: [
           Text(
             l10n.loginTeamTitle,
-            style: const TextStyle(
-              color: AppColors.cyan,
+            style: TextStyle(
+              color: scheme.primary,
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -333,8 +340,8 @@ class _TeamPanel extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 1),
               child: Text(
                 name,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),
@@ -349,19 +356,22 @@ class _NumberMotif extends StatelessWidget {
   const _NumberMotif();
 
   @override
-  Widget build(BuildContext context) => const Wrap(
-    spacing: 9,
-    runSpacing: 9,
-    children: [
-      _MotifTile('4', AppColors.violet),
-      _MotifTile('*', AppColors.cyan),
-      _MotifTile('2', AppColors.success),
-      _MotifTile('＝', AppColors.violetBright),
-      _MotifTile('5', AppColors.violet),
-      _MotifTile('+', AppColors.cyan),
-      _MotifTile('3', AppColors.success),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Wrap(
+      spacing: 9,
+      runSpacing: 9,
+      children: [
+        _MotifTile('4', scheme.primary),
+        _MotifTile('*', scheme.secondary),
+        _MotifTile('2', AppColors.success),
+        _MotifTile('＝', scheme.primary.withValues(alpha: 0.7)),
+        _MotifTile('5', scheme.primary),
+        _MotifTile('+', scheme.secondary),
+        _MotifTile('3', AppColors.success),
+      ],
+    );
+  }
 }
 
 class _MotifTile extends StatelessWidget {
@@ -376,7 +386,7 @@ class _MotifTile extends StatelessWidget {
     height: 42,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: AppColors.background,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(11),
     ),
     child: Text(

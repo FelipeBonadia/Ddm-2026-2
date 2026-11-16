@@ -149,7 +149,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameExpressionPlaceholder => 'Build your expression';
 
   @override
-  String get gameBoardEmptyHint => 'Drag or tap to add to the equation';
+  String get gameBoardEmptyHint => 'Drag pieces here to build the equation';
 
   @override
   String get gameRemoveTokenHint => 'Tap to remove';
@@ -367,7 +367,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpMessage =>
-      'Use each of the four numbers once and build an equality. The = sign is already on the board.\n\nOperators by difficulty:\n• Easy: + − × ÷, parentheses, √, ∛, !, **, |x|, ⌊x⌋ and ⌈x⌉. It is the only level that allows non-integer division (5/2).\n• Intermediate: the same, without floor and ceiling.\n• Advanced: + − × ÷, parentheses, √, ! and |x|.\n• Hard: + − × ÷, parentheses and |x|.\n\nFunctions take a group, √ (8 + 1), or a single number, √ 9. A minus sign before a group negates it: −(2 − 5) = 3.\n\nTap a piece on the board to remove it, and use Skip if a challenge is too hard.';
+      'Use each of the four numbers once and build an equality. The = sign is already on the board.\n\nPoints per solved challenge:\n• Easy: 10 points\n• Intermediate: 20 points\n• Advanced: 30 points\n• Hard: 40 points\n\nOperators by difficulty:\n• Easy: + − × ÷, parentheses, √, ∛, !, **, |x|, ⌊x⌋ and ⌈x⌉. It is the only level that allows non-integer division (5/2).\n• Intermediate: the same, without floor and ceiling.\n• Advanced: + − × ÷, parentheses, √, ! and |x|.\n• Hard: + − × ÷, parentheses and |x|.\n\nFunctions take a group, √ (8 + 1), or a single number, √ 9. A minus sign before a group negates it: −(2 − 5) = 3.\n\nDrag pieces onto the board, tap a placed piece to remove it, and use Skip if a challenge is too hard.';
 
   @override
   String get helpAction => 'Got it';

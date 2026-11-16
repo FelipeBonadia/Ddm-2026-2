@@ -8,10 +8,6 @@ import '../features/help/presentation/help_dialog.dart';
 import '../providers/app_providers.dart';
 import '../services/sound_service.dart';
 
-/// Largura máxima da barra: em telas largas (computador/web) ela não se
-/// estica por toda a janela, com os ícones muito separados.
-const _maxBarWidth = 560.0;
-
 class AppNavigationBar extends ConsumerStatefulWidget {
   const AppNavigationBar({super.key});
 
@@ -64,30 +60,23 @@ class _AppNavigationBarState extends ConsumerState<AppNavigationBar> {
       color: theme.scaffoldBackgroundColor,
       child: SafeArea(
         top: false,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          heightFactor: 1,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: _maxBarWidth),
-            child: CurvedNavigationBar(
-              key: _barKey,
-              index: selectedIndex,
-              height: 50,
-              color: colorScheme.surface,
-              buttonBackgroundColor: colorScheme.primary,
-              backgroundColor: theme.scaffoldBackgroundColor,
-              animationDuration: const Duration(milliseconds: 260),
-              items: [
-                for (var index = 0; index < items.length; index++)
-                  _NavigationButton(
-                    label: items[index].label,
-                    icon: items[index].icon,
-                    selected: index == selectedIndex,
-                  ),
-              ],
-              onTap: (index) => _selectDestination(items[index], selectedIndex),
-            ),
-          ),
+        child: CurvedNavigationBar(
+          key: _barKey,
+          index: selectedIndex,
+          height: 50,
+          color: colorScheme.surface,
+          buttonBackgroundColor: colorScheme.primary,
+          backgroundColor: theme.scaffoldBackgroundColor,
+          animationDuration: const Duration(milliseconds: 260),
+          items: [
+            for (var index = 0; index < items.length; index++)
+              _NavigationButton(
+                label: items[index].label,
+                icon: items[index].icon,
+                selected: index == selectedIndex,
+              ),
+          ],
+          onTap: (index) => _selectDestination(items[index], selectedIndex),
         ),
       ),
     );

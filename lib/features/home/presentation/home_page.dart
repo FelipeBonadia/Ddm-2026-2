@@ -6,7 +6,6 @@ import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/routing/app_router.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
 import '../../../providers/auth_providers.dart';
 import '../../game/application/game_session.dart';
@@ -30,6 +29,16 @@ class HomePage extends ConsumerWidget {
     final game = ref.watch(gameSessionProvider);
     final progress = ref.watch(progressTrackerProvider);
     final streakDays = progress.currentStreakAsOf(DateTime.now());
+    final user = ref.watch(currentUserProvider);
+    final rawName = user?.displayName?.trim();
+    final userName = (rawName != null && rawName.isNotEmpty)
+        ? rawName
+        : (user?.email != null && user!.email!.isNotEmpty)
+            ? user.email!.split('@').first
+            : null;
+    final greeting = userName != null
+        ? '${l10n.localeName.startsWith('pt') ? 'Olá' : 'Hello'}, $userName'
+        : l10n.homeGreeting;
 
     void playPrimaryAction() =>
         soundService.playPrimaryAction(enabled: soundEnabled);
@@ -50,9 +59,9 @@ class HomePage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.homeGreeting,
-                          style: const TextStyle(
-                            color: AppColors.cyan,
+                          greeting,
+                          style: TextStyle(
+                            color: colorScheme.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.1,
@@ -178,8 +187,8 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 12),
               Text(
                 l10n.homeStatsLabel,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.9,
@@ -199,7 +208,7 @@ class HomePage extends ConsumerWidget {
                         width: width,
                         child: _SummaryTile(
                           icon: Icons.local_fire_department_rounded,
-                          tint: AppColors.cyan,
+                          tint: colorScheme.primary,
                           label: l10n.homeSequence,
                           value: l10n.progressStreakDays(streakDays),
                         ),
@@ -217,7 +226,7 @@ class HomePage extends ConsumerWidget {
                         width: width,
                         child: _SummaryTile(
                           icon: Icons.auto_awesome_outlined,
-                          tint: AppColors.success,
+                          tint: colorScheme.tertiary,
                           // Era "Precisão" com "840 pts" fixo; o que existe de
                           // verdade é a pontuação acumulada.
                           label: l10n.progressScore,
@@ -395,7 +404,7 @@ class _StepTile extends StatelessWidget {
     ),
     child: Row(
       children: [
-        Icon(icon, size: 19, color: AppColors.cyan),
+        Icon(icon, size: 19, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 11),
         Expanded(
           child: Column(

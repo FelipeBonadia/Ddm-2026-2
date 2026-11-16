@@ -254,7 +254,9 @@ class SettingsPage extends ConsumerWidget {
                 preferences.soundEnabled
                     ? l10n.settingsSoundEnabled
                     : l10n.settingsSoundDisabled,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               value: preferences.soundEnabled,
               onChanged: (enabled) {
@@ -411,8 +413,8 @@ class _SettingsGroup extends StatelessWidget {
             header: true,
             child: Text(
               title,
-              style: const TextStyle(
-                color: AppColors.cyan,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.1,

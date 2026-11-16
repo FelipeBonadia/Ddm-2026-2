@@ -139,7 +139,7 @@ class _StatTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 17, color: AppColors.violetBright),
+              Icon(icon, size: 17, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -208,8 +208,8 @@ class _HistoryTile extends StatelessWidget {
         ),
         Text(
           '= $result',
-          style: const TextStyle(
-            color: AppColors.cyan,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w700,
           ),
         ),
