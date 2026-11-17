@@ -1,12 +1,14 @@
 # Math Puzzle App
 
-Base Flutter para um jogo de desafios matemáticos. O nome `math_puzzle_app` e as telas são provisórios; autenticação, motor matemático e persistência não foram implementados.
+Feito por Felipe Bonadia e Rick Robert
+
+Base Flutter para um jogo de desafios matemáticos.
 
 ## Executar
 
 ```powershell
 flutter pub get
-flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5173
+flutter run -d chrome  // de preferencia pelo chrome ao edge
 ```
 
 ## Validar
