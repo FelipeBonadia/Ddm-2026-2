@@ -333,18 +333,16 @@ class _GamePageState extends ConsumerState<GamePage> {
                     ),
 
                   // 4. Feedback: espaço sempre reservado (sem "pulo") ───────
-                  SizedBox(
-                    height: 40,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 40),
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: gap / 3),
                       child: feedback == null
                           ? const SizedBox.shrink()
                           : _FeedbackMessage(
                               text: feedback,
-                              success:
-                                  game.evaluation?.isCorrect == true ||
-                                  (game.evaluation == null &&
-                                      game.allSolvedInLevel),
+                              success: game.evaluation?.isCorrect == true ||
+                                  (game.evaluation == null && game.allSolvedInLevel),
                             ),
                     ),
                   ),
