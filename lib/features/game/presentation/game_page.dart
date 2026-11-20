@@ -422,57 +422,58 @@ class _GamePageState extends ConsumerState<GamePage> {
                   // 7. Barra de ações ───────────────────────────────────────
                   Row(
                     children: [
-                      _ActionBtn(
-                        icon: Icons.undo_rounded,
-                        label: l10n.gameUndo,
-                        enabled: !game.solved && hasContent,
-                        onPressed: () {
-                          controller.removeLast();
-                          playSelection();
-                        },
+                      Expanded(
+                        flex: 3,
+                        child: _ActionBtn(
+                          icon: Icons.undo_rounded,
+                          label: l10n.gameUndo,
+                          enabled: !game.solved && hasContent,
+                          onPressed: () {
+                            controller.removeLast();
+                            playSelection();
+                          },
+                        ),
                       ),
                       SizedBox(width: gap),
-                      _ActionBtn(
-                        icon: Icons.delete_sweep_outlined,
-                        label: l10n.gameClear,
-                        enabled: !game.solved && hasContent,
-                        onPressed: () {
-                          _animateReturn();
-                          controller.clearExpression();
-                          soundService.playControl(enabled: soundEnabled);
-                        },
+                      Expanded(
+                        flex: 3,
+                        child: _ActionBtn(
+                          icon: Icons.delete_sweep_outlined,
+                          label: l10n.gameClear,
+                          enabled: !game.solved && hasContent,
+                          onPressed: () {
+                            _animateReturn();
+                            controller.clearExpression();
+                            soundService.playControl(enabled: soundEnabled);
+                          },
+                        ),
                       ),
-                      const Spacer(),
-                      _ActionBtn(
-                        icon: game.solved
-                            ? Icons.arrow_forward_rounded
-                            : Icons.check_circle_outline_rounded,
-                        label: game.solved
-                            ? l10n.gameContinue
-                            : l10n.gameVerify,
-                        enabled: true,
-                        filled: true,
-                        onPressed: game.solved
-                            ? () {
-                                _animateReturn();
-                                controller.nextChallenge();
-                                soundService.playPrimaryAction(
-                                  enabled: soundEnabled,
-                                );
-                              }
-                            : () {
-                                final result = controller.checkAnswer();
-                                if (result?.isCorrect == true) {
-                                  soundService.playSuccess(
-                                    enabled: soundEnabled,
-                                  );
+                      SizedBox(width: gap),
+                      Expanded(
+                        flex: 4, // primary action gets more room
+                        child: _ActionBtn(
+                          icon: game.solved
+                              ? Icons.arrow_forward_rounded
+                              : Icons.check_circle_outline_rounded,
+                          label: game.solved ? l10n.gameContinue : l10n.gameVerify,
+                          enabled: true,
+                          filled: true,
+                          onPressed: game.solved
+                              ? () {
                                   _animateReturn();
-                                } else {
-                                  soundService.playWarning(
-                                    enabled: soundEnabled,
-                                  );
+                                  controller.nextChallenge();
+                                  soundService.playPrimaryAction(enabled: soundEnabled);
                                 }
-                              },
+                              : () {
+                                  final result = controller.checkAnswer();
+                                  if (result?.isCorrect == true) {
+                                    soundService.playSuccess(enabled: soundEnabled);
+                                    _animateReturn();
+                                  } else {
+                                    soundService.playWarning(enabled: soundEnabled);
+                                  }
+                                },
+                        ),
                       ),
                     ],
                   ),
