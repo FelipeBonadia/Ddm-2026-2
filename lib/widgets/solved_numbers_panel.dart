@@ -18,22 +18,18 @@ class SolvedNumbersPanel extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
 
-    return FutureBuilder<Set<String>>(
-      future: ref.watch(solvedChallengesProvider.future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: AppLoadingIndicator(),
-          );
-        }
-        if (snapshot.hasError) {
-          return Text(l10n.progressLoadError);
-        }
+    final solvedAsync = ref.watch(solvedChallengesProvider);
 
+    return solvedAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: AppLoadingIndicator(),
+      ),
+      error: (err, stack) => Text(l10n.progressLoadError),
+      data: (solved) {
         // Parseia cada chave no formato "nivel:n1,n2,n3,n4:intDiv"
         final items = <({List<int> numbers, GameDifficulty difficulty})>[];
-        for (final key in snapshot.data ?? const <String>{}) {
+        for (final key in solved) {
           final parts = key.split(':');
           if (parts.length < 2) continue;
           final numbers = parts[1]

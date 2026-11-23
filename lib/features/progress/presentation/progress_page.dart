@@ -4,6 +4,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../providers/auth_providers.dart';
 import '../../../widgets/app_loading_indicator.dart';
 import '../../../widgets/solved_numbers_panel.dart';
 import '../../game/domain/game_engine.dart';
@@ -17,6 +18,24 @@ class ProgressPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(progressTrackerProvider);
+    final user = ref.watch(currentUserProvider);
+
+    // Fallback: se não há usuário logado, mostra aviso em vez de dados vazios
+    if (user == null) {
+      return AppFeatureFrame(
+        title: l10n.progressTitle,
+        subtitle: l10n.progressSubtitle,
+        child: _EmptyHistory(
+          title: 'Faça login para ver seu progresso',
+          hint: 'Seus dados são salvos por conta. Entre com e-mail ou Google.',
+        ),
+      );
+    }
+
+    final accountLabel =
+        user.displayName?.isNotEmpty == true
+            ? '${user.displayName} (${user.email ?? ''})'
+            : (user.email ?? user.uid);
 
     return AppFeatureFrame(
       title: l10n.progressTitle,
@@ -24,6 +43,10 @@ class ProgressPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Banner mostrando a conta ativa — útil para confirmar qual usuário
+          // está visualizando os dados.
+          _AccountBanner(accountLabel: accountLabel),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -110,6 +133,44 @@ class ProgressPage extends ConsumerWidget {
 
   String _dateLabel(DateTime date, String locale) =>
       intl.DateFormat.MMMd(locale).format(date);
+}
+
+class _AccountBanner extends StatelessWidget {
+  const _AccountBanner({required this.accountLabel});
+
+  final String accountLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: scheme.primaryContainer.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.account_circle_outlined, size: 16, color: scheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              accountLabel,
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _StatTile extends StatelessWidget {
