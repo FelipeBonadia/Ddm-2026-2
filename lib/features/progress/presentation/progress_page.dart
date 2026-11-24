@@ -32,6 +32,13 @@ class ProgressPage extends ConsumerWidget {
       );
     }
 
+    final displayName = user.displayName?.trim();
+    final userInitial = (displayName != null && displayName.isNotEmpty)
+        ? displayName[0].toUpperCase()
+        : (user.email?.isNotEmpty == true
+            ? user.email![0].toUpperCase()
+            : 'U');
+
     final accountLabel =
         user.displayName?.isNotEmpty == true
             ? '${user.displayName} (${user.email ?? ''})'
@@ -43,9 +50,11 @@ class ProgressPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Banner mostrando a conta ativa — útil para confirmar qual usuário
-          // está visualizando os dados.
-          _AccountBanner(accountLabel: accountLabel),
+          // Banner mostrando a conta ativa — com a inicial do usuário
+          _AccountBanner(
+            accountLabel: accountLabel,
+            userInitial: userInitial,
+          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
@@ -136,9 +145,13 @@ class ProgressPage extends ConsumerWidget {
 }
 
 class _AccountBanner extends StatelessWidget {
-  const _AccountBanner({required this.accountLabel});
+  const _AccountBanner({
+    required this.accountLabel,
+    required this.userInitial,
+  });
 
   final String accountLabel;
+  final String userInitial;
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +166,19 @@ class _AccountBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.account_circle_outlined, size: 16, color: scheme.primary),
-          const SizedBox(width: 8),
+          CircleAvatar(
+            radius: 13,
+            backgroundColor: scheme.primary,
+            child: Text(
+              userInitial,
+              style: TextStyle(
+                color: scheme.onPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               accountLabel,

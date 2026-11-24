@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:math_puzzle_app/l10n/generated/app_localizations.dart';
 
 import '../features/game/domain/game_engine.dart';
+import '../features/progress/presentation/progress_tracker.dart';
 import '../providers/auth_providers.dart';
 import 'app_loading_indicator.dart';
 
-/// Lista os desafios que o usuário já resolveu (lidos do Firestore).
+/// Lista os desafios que o usuário já resolveu.
 ///
-/// Cada chave salva tem o formato `nivel:1,2,5,9:divisaoInteira`; aqui ela
-/// vira um chip como "Fácil · 1 2 5 9".
+/// Unifica as fontes de dados: lê os registros em tempo real do
+/// [progressTrackerProvider] e também as chaves salvas no
+/// [solvedChallengesProvider], garantindo que o progresso sempre
+/// reflita as partidas da conta do usuário.
 class SolvedNumbersPanel extends ConsumerWidget {
   const SolvedNumbersPanel({super.key});
 
@@ -18,86 +21,131 @@ class SolvedNumbersPanel extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
 
-    final solvedAsync = ref.watch(solvedChallengesProvider);
+    final progress = ref.watch(progressTrackerProvider);
+    final solvedChallenges =
+        ref.watch(solvedChallengesProvider).value ?? const <String>{};
 
-    return solvedAsync.when(
-      loading: () => const Padding(
+    if (progress.isLoading) {
+      return const Padding(
         padding: EdgeInsets.symmetric(vertical: 16),
         child: AppLoadingIndicator(),
-      ),
-      error: (err, stack) => Text(l10n.progressLoadError),
-      data: (solved) {
-        // Parseia cada chave no formato "nivel:n1,n2,n3,n4:intDiv"
-        final items = <({List<int> numbers, GameDifficulty difficulty})>[];
-        for (final key in solved) {
-          final parts = key.split(':');
-          if (parts.length < 2) continue;
-          final numbers = parts[1]
+      );
+    }
+
+    if (progress.hasError &&
+        progress.entries.isEmpty &&
+        solvedChallenges.isEmpty) {
+      return Text(l10n.progressLoadError);
+    }
+
+    // Mapa para evitar duplicatas: chave única por "dificuldade:n1,n2,n3,n4"
+    final uniqueItems =
+        <String, ({List<int> numbers, GameDifficulty difficulty})>{};
+
+    // 1. Extrai do histórico do progresso (subcoleção /progress)
+    for (final entry in progress.entries) {
+      final List<int> numbers;
+      final key = entry.challengeKey;
+      if (key != null) {
+        final parts = key.split(':');
+        if (parts.length >= 2) {
+          numbers = parts[1]
               .split(',')
               .map(int.tryParse)
               .whereType<int>()
-              .toList();
-          if (numbers.isEmpty) continue;
-          numbers.sort();
-          final difficulty = GameDifficulty.values.firstWhere(
-            (v) => v.name == parts[0],
-            orElse: () => GameDifficulty.easy,
-          );
-          items.add((numbers: numbers, difficulty: difficulty));
+              .toList()
+            ..sort();
+        } else {
+          numbers = _extractNumbers('${entry.leftSide} ${entry.rightSide}');
         }
+      } else {
+        numbers = _extractNumbers('${entry.leftSide} ${entry.rightSide}');
+      }
 
-        if (items.isEmpty) {
-          return Text(
-            l10n.progressEmptyHint,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
-          );
-        }
+      if (numbers.isNotEmpty) {
+        final itemKey = '${entry.difficulty.name}:${numbers.join(',')}';
+        uniqueItems[itemKey] = (numbers: numbers, difficulty: entry.difficulty);
+      }
+    }
 
-        // Ordena: primeiro por dificuldade, depois pelos números
-        items.sort((a, b) {
-          final byLevel = a.difficulty.index.compareTo(b.difficulty.index);
-          if (byLevel != 0) return byLevel;
-          for (var i = 0; i < a.numbers.length && i < b.numbers.length; i++) {
-            final c = a.numbers[i].compareTo(b.numbers[i]);
-            if (c != 0) return c;
-          }
-          return a.numbers.length.compareTo(b.numbers.length);
-        });
+    // 2. Extrai também de solvedChallenges (documento users/{uid}), se houver
+    for (final key in solvedChallenges) {
+      final parts = key.split(':');
+      if (parts.length < 2) continue;
+      final numbers = parts[1]
+          .split(',')
+          .map(int.tryParse)
+          .whereType<int>()
+          .toList()
+        ..sort();
+      if (numbers.isEmpty) continue;
+      final difficulty = GameDifficulty.values.firstWhere(
+        (v) => v.name == parts[0],
+        orElse: () => GameDifficulty.easy,
+      );
+      final itemKey = '${difficulty.name}:${numbers.join(',')}';
+      uniqueItems[itemKey] = (numbers: numbers, difficulty: difficulty);
+    }
 
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final item in items)
-              Chip(
-                avatar: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Text(
-                    _levelInitial(item.difficulty),
-                    style: TextStyle(
-                      color: scheme.onPrimaryContainer,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                label: Text(item.numbers.join('  ·  ')),
-                backgroundColor: scheme.surfaceContainerLow,
-                side: BorderSide(
-                  color: scheme.outlineVariant,
-                  width: 1,
-                ),
-              ),
-          ],
-        );
-      },
+    final items = uniqueItems.values.toList();
+
+    if (items.isEmpty) {
+      return Text(
+        l10n.progressEmptyHint,
+        style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+      );
+    }
+
+    // Ordena: primeiro por dificuldade, depois pelos números
+    items.sort((a, b) {
+      final byLevel = a.difficulty.index.compareTo(b.difficulty.index);
+      if (byLevel != 0) return byLevel;
+      for (var i = 0; i < a.numbers.length && i < b.numbers.length; i++) {
+        final c = a.numbers[i].compareTo(b.numbers[i]);
+        if (c != 0) return c;
+      }
+      return a.numbers.length.compareTo(b.numbers.length);
+    });
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final item in items)
+          Chip(
+            avatar: Icon(
+              Icons.tag_rounded,
+              size: 16,
+              color: scheme.primary,
+            ),
+            label: Text(
+              '${_levelLabel(l10n, item.difficulty)} · ${item.numbers.join('  ·  ')}',
+            ),
+            backgroundColor: scheme.surfaceContainerLow,
+            side: BorderSide(
+              color: scheme.outlineVariant,
+              width: 1,
+            ),
+          ),
+      ],
     );
   }
 
-  String _levelInitial(GameDifficulty difficulty) => switch (difficulty) {
-    GameDifficulty.easy => 'F',
-    GameDifficulty.intermediate => 'I',
-    GameDifficulty.advanced => 'A',
-    GameDifficulty.hard => 'D',
-  };
+  static List<int> _extractNumbers(String text) {
+    final matches = RegExp(r'\b[1-9]\b').allMatches(text);
+    final numbers = matches
+        .map((m) => int.tryParse(m.group(0)!))
+        .whereType<int>()
+        .toList()
+      ..sort();
+    return numbers;
+  }
+
+  String _levelLabel(AppLocalizations l10n, GameDifficulty difficulty) =>
+      switch (difficulty) {
+        GameDifficulty.easy => l10n.progressDifficultyEasy,
+        GameDifficulty.intermediate => l10n.progressDifficultyIntermediate,
+        GameDifficulty.advanced => l10n.progressDifficultyAdvanced,
+        GameDifficulty.hard => l10n.progressDifficultyHard,
+      };
 }

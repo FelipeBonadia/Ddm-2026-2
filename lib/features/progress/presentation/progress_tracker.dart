@@ -30,12 +30,18 @@ class ProgressEntry {
     required this.rightSide,
     required this.difficulty,
     required this.solvedAt,
+    this.challengeKey,
   });
 
   final String leftSide;
   final String rightSide;
   final GameDifficulty difficulty;
   final DateTime solvedAt;
+
+  /// Chave estável do desafio no formato `"nivel:n1,n2,n3,n4:intDiv"`.
+  /// Usada para derivar os números mostrados no painel "Números Resolvidos".
+  /// Pode ser null em entradas antigas gravadas antes deste campo existir.
+  final String? challengeKey;
 
   Map<String, dynamic> toMap() => {
     'leftSide': leftSide,
@@ -44,6 +50,7 @@ class ProgressEntry {
     // dados antigos.
     'difficulty': difficulty.name,
     'solvedAt': Timestamp.fromDate(solvedAt),
+    if (challengeKey != null) 'challengeKey': challengeKey,
   };
 
   /// Retorna null se o documento estiver malformado (em vez de derrubar a
@@ -60,6 +67,7 @@ class ProgressEntry {
       rightSide: right,
       difficulty: _difficultyFromName(map['difficulty']),
       solvedAt: solvedAt.toDate(),
+      challengeKey: map['challengeKey'] as String?,
     );
   }
 
@@ -211,6 +219,7 @@ class ProgressTrackerController extends Notifier<ProgressState> {
     required String leftSide,
     required String rightSide,
     required GameDifficulty difficulty,
+    String? challengeKey,
   }) {
     final uid = _uid;
     if (uid == null) return; // sem usuário logado não há onde gravar
@@ -220,6 +229,7 @@ class ProgressTrackerController extends Notifier<ProgressState> {
       rightSide: rightSide,
       difficulty: difficulty,
       solvedAt: DateTime.now(),
+      challengeKey: challengeKey,
     );
 
     unawaited(

@@ -304,6 +304,7 @@ class GameSessionController extends Notifier<GameSessionState> {
             leftSide: state.tokensFor(EquationSide.left).join(' '),
             rightSide: state.tokensFor(EquationSide.right).join(' '),
             difficulty: state.challenge.difficulty,
+            challengeKey: state.challenge.key,
           );
       _saveSolvedChallenge(state.challenge.key);
     }
